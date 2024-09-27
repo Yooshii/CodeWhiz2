@@ -109,3 +109,7 @@ function signup() {
 
   return false;
 }
+
+function showLeaderboard() {
+  window.location.href = "/leaderboard";
+}

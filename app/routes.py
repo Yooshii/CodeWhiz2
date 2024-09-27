@@ -17,7 +17,6 @@ client = anthropic.Anthropic(
     api_key=claude_api_key
 )
 
-
 @main.route("/")
 def index():
     last_cache_check = session.get('last_cache_check')
