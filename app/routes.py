@@ -140,19 +140,28 @@ def update_score():
 @main.route("/leaderboard")
 def leaderboard():
     try:
-        users = app.db.child("users").order_by_child("score").limit_to_last(10).get()
+        # Fetch all users without ordering
+        users = app.db.child("users").get()
         leaderboard_data = []
-        if users.val():
-            for user_id, user_data in users.val().items():
-                leaderboard_data.append({
-                    "username": user_data.get("username", "Unknown"),
-                    "score": user_data.get("score", 0)
-                })
+        if users.each():
+            for user in users.each():
+                user_data = user.val()
+                if isinstance(user_data, dict) and 'score' in user_data:
+                    leaderboard_data.append({
+                        "username": user_data.get("username", "Unknown"),
+                        "score": user_data.get("score", 0)
+                    })
+        
+        # Sort the data on the Python side
         leaderboard_data.sort(key=lambda x: x["score"], reverse=True)
+        
+        # Take only the top 10
+        leaderboard_data = leaderboard_data[:10]
+        
         return render_template("leaderboard.html", leaderboard_data=leaderboard_data)
     except Exception as e:
         print(f"Error fetching leaderboard: {e}")
-        return render_template("error.html", error="Failed to fetch leaderboard")
+        return render_template("error.html", error="Failed to fetch leaderboard" + str(e))
     
 @main.route("/portfolio")
 def portfolio():
