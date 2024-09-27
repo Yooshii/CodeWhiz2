@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="/imgs/favicon.png" />
+    <title>CodeWhiz</title>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#6366F1",
+              secondary: "#10B981",
+              dark: "#111827",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-900 text-gray-100 font-sans">
+    <nav class="font-bold">
+      <a href="/welcome" class="logo">
+        <img src="/imgs/logo.png" />
+      </a>
+      <ul class="space-x-6">
+        <li>
+          <a href="/quiz">Quiz</a>
+        </li>
+        <li>
+          <a href="/leaderboard">Leaderboard</a>
+        </li>
+        <li>
+          <a href="/portfolio">Portfolio</a>
+        </li>
+      </ul>
+      <div class="flex items-center space-x-6">
+        <h3 class="text-white text-excel">{{ email }}</h3>
+        <a href="/logout" class="text-white cursor-pointer">Logout</a>
+      </div>
+    </nav>
+    <main class="pt-24 pb-16 min-h-screen">
+      <div id="leaderboardContent">
+        <h2 class="text-4xl font-bold mb-8 text-center text-primary">
+          Leaderboard
+        </h2>
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md mx-auto">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th class="text-left pb-2">Rank</th>
+                <th class="text-left pb-2">Username</th>
+                <th class="text-right pb-2">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for player in leaderboard_data %}
+              <tr>
+                <td class="py-2">{{ loop.index }}</td>
+                <td class="py-2">{{ player.username }}</td>
+                <td class="py-2 text-right">{{ player.score }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mt-8 text-center">
+        <a
+          href="{{ url_for('main.quiz') }}"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Back to Home
+        </a>
+      </div>
+    </main>
+    <footer class="bg-gray-800 text-gray-400">
+      <div class="container mx-auto px-6 py-8 text-center">
+        <p class="mb-2">The fun way for middle schoolers to learn coding!</p>
+        <p class="text-sm">&copy; 2024 CodeWhiz. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="/imgs/favicon.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/script.js"></script>
+    <title>CodeWhiz</title>
+  </head>
+  <body class="bg-gray-900">
+    <nav class="font-bold">
+      <a href="/welcome" class="logo">
+        <img src="/imgs/logo.png" />
+      </a>
+      <ul class="space-x-6">
+        <li>
+          <a href="/quiz">Quiz</a>
+        </li>
+        <li>
+          <a href="/leaderboard">Leaderboard</a>
+        </li>
+        <li>
+          <a href="/portfolio">Portfolio</a>
+        </li>
+      </ul>
+      <div class="flex items-center space-x-6">
+        <h3 class="text-white text-excel">{{ email }}</h3>
+        <a href="/logout" class="text-white cursor-pointer">Logout</a>
+      </div>
+    </nav>
+    <main>
+      <section class="hero-section">
+        <img
+          src="/imgs/wallpaper.jpg"
+          class="absolute w-full h-full"
+        />
+        <div class="absolute flex items-center justify-center z-10 inset-0">
+          <div class="text-center text-white">
+            <h1 class="text-4xl mb-4">Start Quizing</h1>
+            <a href="/quiz">
+              <button class="glitch-btn">Get Started</button>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-gray-800 text-gray-400">
+      <div class="container mx-auto px-6 py-8 text-center">
+        <p class="mb-2">The fun way for middle schoolers to learn coding!</p>
+        <p class="text-sm">&copy; 2024 CodeWhiz. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>
