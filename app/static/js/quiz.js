@@ -105,14 +105,35 @@ function QuizQuestion({
   timeLeft,
   questionNumber,
   totalQuestions,
+  correctAnswer=null,
+  selectedAnswer=null
 }) {
+
+  const getOptionClass = (option) => {
+    const baseClass = "w-full py-3 px-4 text-left rounded-lg transition-colors ";
+
+    if (correctAnswer === null) {
+      return baseClass + "bg-gray-700 hover:bg-primary";
+    }
+    
+    if (option === correctAnswer) {
+      return baseClass + "bg-green-600"; // Correct answer
+    }
+    
+    if (option === selectedAnswer && option !== correctAnswer) {
+      return baseClass + "bg-red-600"; // Wrong selected answer
+    }
+    
+    return baseClass + "bg-gray-700"; // Other options
+  };
+
   const optionButtons = options.map((option) =>
     createElement(
       "button",
       {
-        className:
-          "w-full py-3 px-4 bg-gray-700 hover:bg-primary text-left rounded-lg transition-colors",
+        className: getOptionClass(option),
         onClick: () => onAnswer(option),
+        disabled: correctAnswer !== null, // Disable buttons during feedback
       },
       option
     )
@@ -501,12 +522,37 @@ function checkAnswer(answer) {
   clearInterval(timer);
   const levelQuestions =
     questions[currentLanguage][currentCategory][currentLevel];
+  const currentQuestion = levelQuestions[questionIndex];
+  const correctAnswer = currentQuestion.correctAnswer;
+
+  mainContent.innerHTML = "";
+  mainContent.appendChild(
+    QuizQuestion({
+      question: currentQuestion.question,
+      options: currentQuestion.options,
+      onAnswer: () => {}, // Disable answer handling during feedback
+      timeLeft: timeLeft,
+      questionNumber: questionIndex + 1,
+      totalQuestions: levelQuestions.length,
+      correctAnswer: correctAnswer,
+      selectedAnswer: answer
+    })
+  );
+
+  addBackButton(() => {
+    clearInterval(timer);
+    showLevelSelection();
+  });
+  
   if (answer === levelQuestions[questionIndex].correctAnswer) {
     score++;
   }
-  questionIndex++;
-  showQuestion();
+  setTimeout(() => {
+    questionIndex++;
+    showQuestion();
+  }, 2000);
 }
+
 
 function updateTimerDisplay() {
   const timerElement = mainContent.querySelector(".text-primary");

@@ -37,25 +37,40 @@ def welcome():
             thread = threading.Thread(target=manage_cache)
             thread.start()
             session['last_cache_check'] = datetime.now().isoformat()
-        return render_template("welcome.html", email=session["email"])
+        return render_template("welcome.html", email=session["username"])
     else:
         return redirect(url_for("main.index"))
     
 @main.route("/login", methods = ["POST", "GET"])
 def login():
     if request.method == "POST":
-        email = request.get_json()["email"]
+        email_or_username = request.get_json()["email"]
         password = request.get_json()["password"]
 
         try:
-            user = app.auth.sign_in_with_email_and_password(email, password)
-            session["is_logged_in"] = True
-            session["email"] = email
-            session["local_id"] = user["localId"]
-            
-            return jsonify({"success": True, "redirect": url_for("main.welcome")})
+            user = app.auth.sign_in_with_email_and_password(email_or_username, password)
+
         except:
-            return jsonify({"success": False, "error": "Invalid username/email or password"}), 401
+            users = app.db.child("users").get().val()
+            for uid, data in users.items():
+                if data.get("username") == email_or_username:
+                    user_id = uid
+                    break
+                else:
+                    user_id = None
+            
+            if user_id:
+                email = users[user_id]["email"]
+                user = app.auth.sign_in_with_email_and_password(email, password)
+            else:
+                return jsonify({"success": False, "error": "Invalid username/email or password"}), 401
+        
+        session["is_logged_in"] = True
+        session["email"] = user["email"]
+        session["local_id"] = user["localId"]
+        session["username"] = app.db.child("users").child(session["local_id"]).child("username").get().val()
+
+        return jsonify({"success": True, "redirect": url_for("main.welcome")})
         
 @main.route("/signup", methods = ["POST", "GET"])
 def signup():
@@ -64,6 +79,11 @@ def signup():
         password = request.get_json()["password"]
         name = request.get_json()["name"]
         username = request.get_json()["username"]
+
+        users = app.db.child("users").get().val()
+        for uid, data in users.items():
+            if data.get("username") == username:
+                return jsonify({"success": False, "error": "Username already taken"}), 400
 
         try:
             app.auth.create_user_with_email_and_password(email, password)
@@ -122,7 +142,7 @@ def quiz():
 def update_user_score(user_id, score):
 
     current_score = app.db.child("users").child(user_id).child("score").get().val() or 0
-    new_score = max(current_score, score)  # Update only if the new score is higher
+    new_score = current_score + score
     app.db.child("users").child(user_id).update({"score": new_score})
 
 @main.route("/update_score", methods=["POST"])
@@ -171,29 +191,6 @@ def portfolio():
 def test():
     return render_template("test.html")
 
-def manage_cache():
-    languages = ['Python', 'JavaScript', 'C++']
-    categories = ['Loops', 'Conditionals', 'Functions', 'Variables', 'Arrays', "Debugging"]
-    levels = range(1, 6)
-
-    for language in languages:
-        for category in categories:
-            for level in levels:
-                cache_key = f"{language}_{category}_{level}"
-                
-                # Refresh prompts older than 7 days
-                prompt_data = app.db.child("cached_prompts").child(cache_key).get().val()
-                if not prompt_data or datetime.now() - datetime.fromisoformat(prompt_data['timestamp']) >= timedelta(days=7):
-                    get_or_create_prompt(language, category, level)
-                    print(f"Refreshed prompt for {cache_key}")
-
-                # Maintain question cache
-                cached_questions = app.db.child("cached_questions").child(cache_key).get().val() or []
-                if len(cached_questions) < 20:  # Maintain at least 20 questions per combination
-                    new_questions = generate_new_questions(language, category, level, 20 - len(cached_questions))
-                    cached_questions.extend(new_questions)
-                    app.db.child("cached_questions").child(cache_key).set(cached_questions)
-                    print(f"Generated {len(new_questions)} new questions for {cache_key}")
 
 def get_or_create_prompt(language, category, level):
     prompt_key = f"{language}_{category}_{level}"
@@ -221,64 +218,6 @@ def get_or_create_prompt(language, category, level):
 
     return new_prompt
 
-def generate_new_questions(language, category, level, num_questions=5):
-    prompt = get_or_create_prompt(language, category, level)
-
-    response = client.beta.prompt_caching.messages.create(
-        model="claude-3-5-sonnet-20240620",
-        max_tokens=2048,
-        system=[
-            {
-                "type": "text",
-                "text": "You are a state of the art quiz question generator for middle school, high school and elementary school kids"
-            }
-        ],
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt,
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ]
-            }
-        ]
-    )
-
-    response_json = json.loads(response.model_dump_json())
-    print(json.dumps(response_json, indent=2))  # Pretty print the response for debugging
-    
-    if response_json['content']:
-        # Extract the text content from the response
-        questions_text = response_json['content'][0]['text']
-        
-        # Find the start and end of the JSON array in the text
-        start = questions_text.find('[')
-        end = questions_text.rfind(']') + 1
-        
-        if start != -1 and end != -1:
-            # Extract and parse the JSON array
-            questions_json = questions_text[start:end]
-            questions = json.loads(questions_json)
-            
-            for q in questions:
-                # Create a JSON-serializable version of the question
-                serializable_q = {
-                    'question': q['question'],
-                    'options': q['options'],
-                    'correctAnswer': q['correctAnswer']
-                }
-                q['id'] = hashlib.md5(json.dumps(serializable_q, sort_keys=True).encode()).hexdigest()
-            return questions
-        else:
-            print("Error: Could not find JSON array in the response")
-            return []
-    else:
-        print(f"Error generating questions: {json.dumps(response_json, indent=2)}")
-        return []
-
 @main.route("/generate_questions", methods=["POST"])
 def generate_questions():
     data = request.json
@@ -288,27 +227,188 @@ def generate_questions():
     num_questions = data.get("num_questions", 5)
     user_id = session.get("local_id")
 
+    cache_key = f"{language}_{category}_{level}"
+
     # Fetch user's seen questions
     user_data = app.db.child("users").child(user_id).get().val()
-    seen_questions = user_data.get("seen_questions", {}).get(f"{language}_{category}_{level}", [])
+    seen_questions = user_data.get("seen_questions", {}).get(cache_key, [])
 
-    # Check cache for available questions
-    cached_questions = app.db.child("cached_questions").child(f"{language}_{category}_{level}").get().val() or []
+    # Fetch and clean cached questions
+    cached_questions = app.db.child("cached_questions").child(cache_key).get().val() or []
+    
+    # Remove duplicates from cached questions based on question content
+    unique_cached = []
+    seen_content = set()
+    for q in cached_questions:
+        # Create a unique identifier based on question content
+        content_hash = hashlib.md5(
+            json.dumps({
+                'question': q['question'],
+                'options': q['options'],
+                'correctAnswer': q['correctAnswer']
+            }, sort_keys=True).encode()
+        ).hexdigest()
+        
+        if content_hash not in seen_content:
+            seen_content.add(content_hash)
+            unique_cached.append(q)
+    
+    # Update cache with deduplicated questions
+    app.db.child("cached_questions").child(cache_key).set(unique_cached)
+    cached_questions = unique_cached
+
+    # Get available questions (not seen by user)
     available_questions = [q for q in cached_questions if q['id'] not in seen_questions]
 
-    # If we don't have enough available questions, generate more
-    while len(available_questions) < num_questions:
-        new_questions = generate_new_questions(language, category, level, 5)  # Generate in batches of 5
-        cached_questions.extend(new_questions)
-        app.db.child("cached_questions").child(f"{language}_{category}_{level}").set(cached_questions)
-        available_questions.extend([q for q in new_questions if q['id'] not in seen_questions])
+    # Generate new questions if needed
+    attempts = 0
+    max_attempts = 3  # Limit generation attempts to prevent infinite loops
+    while len(available_questions) < num_questions and attempts < max_attempts:
+        new_questions = generate_new_questions(language, category, level, max(5, num_questions - len(available_questions)))
+        
+        # Deduplicate new questions against existing cache
+        for q in new_questions:
+            content_hash = hashlib.md5(
+                json.dumps({
+                    'question': q['question'],
+                    'options': q['options'],
+                    'correctAnswer': q['correctAnswer']
+                }, sort_keys=True).encode()
+            ).hexdigest()
+            
+            if content_hash not in seen_content:
+                seen_content.add(content_hash)
+                cached_questions.append(q)
+                if q['id'] not in seen_questions:
+                    available_questions.append(q)
+        
+        attempts += 1
 
-    # Select questions for the user
-    selected_questions = random.sample(available_questions, num_questions)
+    # Update cache with new questions
+    app.db.child("cached_questions").child(cache_key).set(cached_questions)
+
+    # Select random questions from available pool
+    selected_questions = []
+    if available_questions:
+        selected_questions = random.sample(
+            available_questions,
+            min(num_questions, len(available_questions))
+        )
 
     # Update user's seen questions
     for question in selected_questions:
-        seen_questions.append(question['id'])
-    app.db.child("users").child(user_id).child("seen_questions").child(f"{language}_{category}_{level}").set(seen_questions)
+        if question['id'] not in seen_questions:
+            seen_questions.append(question['id'])
+    app.db.child("users").child(user_id).child("seen_questions").child(cache_key).set(seen_questions)
 
     return jsonify(selected_questions)
+
+def generate_new_questions(language, category, level, num_questions=5):
+    prompt = get_or_create_prompt(language, category, level)
+
+    response = client.beta.prompt_caching.messages.create(
+        model="claude-3-5-sonnet-20240620",
+        max_tokens=2048,
+        system=[
+            {
+                "type": "text",
+                "text": "You are a state of the art quiz question generator for middle school, high school and elementary school kids. Generate unique questions that are different from previously generated ones."
+            }
+        ],
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"{prompt}\n\nIMPORTANT: Generate completely unique questions that are different from any previous questions. Ensure variety in both question content and structure.",
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ]
+            }
+        ]
+    )
+
+    try:
+        response_json = json.loads(response.model_dump_json())
+        
+        if response_json['content']:
+            questions_text = response_json['content'][0]['text']
+            start = questions_text.find('[')
+            end = questions_text.rfind(']') + 1
+            
+            if start != -1 and end != -1:
+                questions_json = questions_text[start:end]
+                questions = json.loads(questions_json)
+                
+                # Generate IDs based on content to help identify duplicates
+                for q in questions:
+                    serializable_q = {
+                        'question': q['question'],
+                        'options': q['options'],
+                        'correctAnswer': q['correctAnswer']
+                    }
+                    q['id'] = hashlib.md5(json.dumps(serializable_q, sort_keys=True).encode()).hexdigest()
+                
+                return questions
+            
+        print("Error: Could not find valid JSON array in the response")
+        return []
+        
+    except Exception as e:
+        print(f"Error generating questions: {str(e)}")
+        return []
+
+def manage_cache():
+    languages = ['Python', 'JavaScript', 'C++']
+    categories = ['Loops', 'Conditionals', 'Functions', 'Variables', 'Arrays', "Debugging"]
+    levels = range(1, 6)
+
+    for language in languages:
+        for category in categories:
+            for level in levels:
+                cache_key = f"{language}_{category}_{level}"
+                
+                # Refresh prompts older than 7 days
+                prompt_data = app.db.child("cached_prompts").child(cache_key).get().val()
+                if not prompt_data or datetime.now() - datetime.fromisoformat(prompt_data['timestamp']) >= timedelta(days=7):
+                    get_or_create_prompt(language, category, level)
+                    print(f"Refreshed prompt for {cache_key}")
+
+                # Clean and maintain question cache
+                cached_questions = app.db.child("cached_questions").child(cache_key).get().val() or []
+                
+                # Remove duplicates
+                unique_questions = []
+                seen_content = set()
+                for q in cached_questions:
+                    content_hash = hashlib.md5(
+                        json.dumps({
+                            'question': q['question'],
+                            'options': q['options'],
+                            'correctAnswer': q['correctAnswer']
+                        }, sort_keys=True).encode()
+                    ).hexdigest()
+                    
+                    if content_hash not in seen_content:
+                        seen_content.add(content_hash)
+                        unique_questions.append(q)
+                
+                # Generate new questions if needed
+                if len(unique_questions) < 20:
+                    new_questions = generate_new_questions(language, category, level, 20 - len(unique_questions))
+                    for q in new_questions:
+                        content_hash = hashlib.md5(
+                            json.dumps({
+                                'question': q['question'],
+                                'options': q['options'],
+                                'correctAnswer': q['correctAnswer']
+                            }, sort_keys=True).encode()
+                        ).hexdigest()
+                        
+                        if content_hash not in seen_content:
+                            seen_content.add(content_hash)
+                            unique_questions.append(q)
+                
+                app.db.child("cached_questions").child(cache_key).set(unique_questions)
+                print(f"Maintained {len(unique_questions)} unique questions for {cache_key}")
