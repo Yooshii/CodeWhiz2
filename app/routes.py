@@ -8,12 +8,14 @@ import os
 import hashlib
 from datetime import datetime, timedelta
 import threading
+import contextlib
+from io import StringIO
+import traceback
 
 claude_api_key = os.getenv("CLAUDEAPIKEY")
 
 main = Blueprint("main", __name__)
 client = anthropic.Anthropic(
-    # defaults to os.environ.get("ANTHROPIC_API_KEY")
     api_key=claude_api_key
 )
 
@@ -140,7 +142,6 @@ def quiz():
         return redirect(url_for("main.index"))
 
 def update_user_score(user_id, score):
-
     current_score = app.db.child("users").child(user_id).child("score").get().val() or 0
     new_score = current_score + score
     app.db.child("users").child(user_id).update({"score": new_score})
@@ -155,7 +156,6 @@ def update_score():
         update_user_score(user_id, score)
         return jsonify({"success": True}), 200
     return jsonify({"error": "User not logged in"}), 401
-
 
 @main.route("/leaderboard")
 def leaderboard():
@@ -186,11 +186,6 @@ def leaderboard():
 @main.route("/portfolio")
 def portfolio():
     return render_template("portfolio.html")
-
-@main.route("/test")
-def test():
-    return render_template("test.html")
-
 
 def get_or_create_prompt(language, category, level):
     prompt_key = f"{language}_{category}_{level}"
@@ -412,3 +407,28 @@ def manage_cache():
                 
                 app.db.child("cached_questions").child(cache_key).set(unique_questions)
                 print(f"Maintained {len(unique_questions)} unique questions for {cache_key}")
+
+@main.route("/pycodeeditor")
+def pycodeeditor():
+    return render_template("pyeditor.html")
+
+@main.route("/webcodeeditor")
+def webcodeeditor():
+    return render_template("webeditor.html")
+
+@main.route('/run_py', methods=['POST'])
+def run_py():
+    data = request.json.get("code", "")
+    output = StringIO()
+
+    try:
+        with contextlib.redirect_stdout(output):
+            exec(data)
+    except Exception as e:
+        output = str(e)
+
+        return jsonify({"error": traceback.format_exc()}), 400
+
+    print(output.getvalue())
+
+    return jsonify({"output": output.getvalue()})

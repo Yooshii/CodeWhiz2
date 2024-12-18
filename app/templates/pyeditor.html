@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %} Python - CodeWhiz {% endblock %} {%
+block head_script %}
+<script
+  src="https://kit.fontawesome.com/105633963c.js"
+  crossorigin="anonymous"
+></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
+{% endblock %} {% block content %}
+<div class="pt-24 pb-16 min-h-screen flex justify-center">
+  <div class="container">
+    <div class="p-2 bg-[#25292e]">
+      <button
+        class="bg-[#f12b18] hover:bg-red-800 text-white font-bold p-2 rounded"
+        id="runbtn"
+        onclick="runCode()"
+      >
+        <i class="fa-solid fa-play pr-2"></i>Run
+      </button>
+    </div>
+    <div class="h-4/5 flex">
+      <div class="w-3/6 text-xl" id="editor"></div>
+      <div
+        class="w-3/6 h-full max-h-full bg-black text-white overflow-scroll"
+        id="output"
+      ></div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block end_script %}
+<script src="/js/pycodeeditor.js"></script>
+{% endblock %}

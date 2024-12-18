@@ -58,8 +58,8 @@ function LevelSelection({ category, levels, onStart }) {
       "button",
       {
         className: `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-          index === 0 ? "bg-primary text-white" : "bg-gray-700 text-gray-300"
-        } hover:bg-primary hover:text-white transition-colors`,
+          index === 0 ? "bg-[#f12b18] text-white" : "bg-gray-700 text-gray-300"
+        } hover:bg-[#f12b18] hover:text-white transition-colors`,
         onClick: () => onStart(level),
       },
       level.toString()
@@ -74,10 +74,14 @@ function LevelSelection({ category, levels, onStart }) {
     },
     createElement(
       "h2",
-      { className: "text-3xl font-bold mb-6 text-primary" },
+      { className: "text-3xl font-bold mb-6 text-[#f12b18]" },
       `${category}`
     ),
-    createElement("p", { className: "mb-4 text-xl" }, "Select a Level:"),
+    createElement(
+      "p",
+      { className: "mb-4 text-xl text-white" },
+      "Select a Level:"
+    ),
     createElement(
       "div",
       { className: "flex justify-center space-x-4 mb-8" },
@@ -87,7 +91,7 @@ function LevelSelection({ category, levels, onStart }) {
       "button",
       {
         className:
-          "bg-secondary text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-secondary/80 transition-colors",
+          "text-white py-2 px-6 rounded-full text-lg font-semibold transition-colors",
         onClick: () => onStart(1),
       },
       "Start Quiz"
@@ -105,25 +109,25 @@ function QuizQuestion({
   timeLeft,
   questionNumber,
   totalQuestions,
-  correctAnswer=null,
-  selectedAnswer=null
+  correctAnswer = null,
+  selectedAnswer = null,
 }) {
-
   const getOptionClass = (option) => {
-    const baseClass = "w-full py-3 px-4 text-left rounded-lg transition-colors ";
+    const baseClass =
+      "w-full py-3 px-4 text-left rounded-lg transition-colors ";
 
     if (correctAnswer === null) {
-      return baseClass + "bg-gray-700 hover:bg-primary";
+      return baseClass + "bg-gray-700 hover:bg-[#f12b18]";
     }
-    
+
     if (option === correctAnswer) {
       return baseClass + "bg-green-600"; // Correct answer
     }
-    
+
     if (option === selectedAnswer && option !== correctAnswer) {
       return baseClass + "bg-red-600"; // Wrong selected answer
     }
-    
+
     return baseClass + "bg-gray-700"; // Other options
   };
 
@@ -152,7 +156,7 @@ function QuizQuestion({
       ),
       createElement(
         "span",
-        { className: "text-xl font-semibold text-primary" },
+        { className: "text-xl font-semibold text-[#f12b18]" },
         `${timeLeft}s`
       )
     ),
@@ -299,7 +303,7 @@ function showSubcategorySelection() {
   mainContent.appendChild(
     createElement(
       "h2",
-      { className: "text-4xl font-bold mb-12 text-center text-primary" },
+      { className: "text-4xl font-bold mb-12 text-center text-[#f12b18]" },
       `Choose Your ${currentLanguage} Challenge`
     )
   );
@@ -326,7 +330,7 @@ function showLanguageSelection() {
   mainContent.appendChild(
     createElement(
       "h2",
-      { className: "text-4xl font-bold mb-12 text-center text-primary" },
+      { className: "text-4xl font-bold mb-12 text-center text-[#f12b18]" },
       "Choose Your Coding Language"
     )
   );
@@ -356,9 +360,9 @@ function LevelSelection({ category, levels, onStart }) {
       {
         className: `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
           level === selectedLevel
-            ? "bg-primary text-white"
+            ? "bg-[#f12b18] text-white"
             : "bg-gray-700 text-gray-300"
-        } hover:bg-primary hover:text-white transition-colors`,
+        } hover:bg-[#f12b18] hover:text-white transition-colors`,
         onClick: () => {
           selectedLevel = level;
           updateLevelButtons();
@@ -372,9 +376,9 @@ function LevelSelection({ category, levels, onStart }) {
     levelButtons.forEach((button, index) => {
       button.className = `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
         index + 1 === selectedLevel
-          ? "bg-primary text-white"
+          ? "bg-[#f12b18] text-white"
           : "bg-gray-700 text-gray-300"
-      } hover:bg-primary hover:text-white transition-colors`;
+      } hover:bg-[#f12b18] hover:text-white transition-colors`;
     });
   }
 
@@ -382,7 +386,7 @@ function LevelSelection({ category, levels, onStart }) {
     "button",
     {
       className:
-        "bg-secondary text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-secondary/80 transition-colors",
+        "text-white py-2 px-6 rounded-full text-lg font-semibold transition-colors",
       onClick: () => onStart(selectedLevel),
     },
     "Start Quiz"
@@ -396,7 +400,7 @@ function LevelSelection({ category, levels, onStart }) {
     },
     createElement(
       "h2",
-      { className: "text-3xl font-bold mb-6 text-primary" },
+      { className: "text-3xl font-bold mb-6 text-[#f12b18]" },
       `${category}`
     ),
     createElement("p", { className: "mb-4 text-xl" }, "Select a Level:"),
@@ -535,7 +539,7 @@ function checkAnswer(answer) {
       questionNumber: questionIndex + 1,
       totalQuestions: levelQuestions.length,
       correctAnswer: correctAnswer,
-      selectedAnswer: answer
+      selectedAnswer: answer,
     })
   );
 
@@ -543,7 +547,7 @@ function checkAnswer(answer) {
     clearInterval(timer);
     showLevelSelection();
   });
-  
+
   if (answer === levelQuestions[questionIndex].correctAnswer) {
     score++;
   }
@@ -553,9 +557,8 @@ function checkAnswer(answer) {
   }, 2000);
 }
 
-
 function updateTimerDisplay() {
-  const timerElement = mainContent.querySelector(".text-primary");
+  const timerElement = mainContent.querySelector(".text-[#f12b18]");
   if (timerElement) {
     timerElement.textContent = `${timeLeft}s`;
   }
@@ -572,7 +575,7 @@ function showResult() {
       },
       createElement(
         "h2",
-        { className: "text-3xl font-bold mb-6 text-primary" },
+        { className: "text-3xl font-bold mb-6 text-[#f12b18]" },
         "Quiz Complete!"
       ),
       createElement(
@@ -584,7 +587,7 @@ function showResult() {
         "button",
         {
           className:
-            "bg-secondary text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-secondary/80 transition-colors mr-4",
+            "text-white py-2 px-6 rounded-full text-lg font-semibold transition-colors mr-4",
           onClick: () => startQuiz(currentLevel),
         },
         "Play Again"
@@ -593,7 +596,7 @@ function showResult() {
         "button",
         {
           className:
-            "bg-primary text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-primary/80 transition-colors",
+            "bg-[#f12b18] text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-[#f12b18]/80 transition-colors",
           onClick: showLanguageSelection,
         },
         "Back to Languages"
@@ -643,5 +646,4 @@ window.addEventListener("scroll", function () {
   nav.classList.toggle("sticky", window.scrollY > 0);
 });
 
-// Initialize the app
 showLanguageSelection();

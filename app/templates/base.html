@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="/imgs/favicon.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+
+    {% block head_script %}{% endblock %}
+
+    <title>CodeWhiz</title>
+  </head>
+  <body class="bg-gray-900">
+    {% if session.get("is_logged_in") %}
+    <nav class="font-bold">
+        <a href="/welcome" class="logo">
+          <img src="/imgs/logo.png" />
+        </a>
+        <ul class="space-x-6">
+          <li>
+            <a href="/quiz">Quiz</a>
+          </li>
+          <li>
+            <a href="/leaderboard">Leaderboard</a>
+          </li>
+          <li class="relative">
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white text-center inline-flex items-center justify-center" type="button">CodeEditor<svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+            </svg>
+            </button>
+            
+            <div id="dropdown" class="z-10 absolute hidden bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200 flex flex-col" aria-labelledby="dropdownDefaultButton">
+                    <li>
+                        <a href="/webcodeeditor" class="block px-4 py-2">WebDev</a>
+                    </li>
+                    <li>
+                        <a href="/pycodeeditor" class="block px-4 py-2">Python</a>
+                    </li>
+                </ul>
+            </div>
+          </li>
+          <li>
+            <a href="/portfolio">Portfolio</a>
+          </li>
+        </ul>
+        <div class="flex items-center space-x-6">
+          <h3 class="text-white text-excel">{{ email }}</h3>
+          <a href="/logout" class="text-white cursor-pointer">Logout</a>
+        </div>
+      </nav>
+      
+    {% else %}
+    <nav class="font-bold">
+        <a href="/" class="logo">
+          <img src="/imgs/logo.png" />
+        </a>
+        <div class="flex items-center space-x-6">
+          <ul class="space-x-6">
+            <li>
+              <a onclick="openModalError()">Quiz</a>
+            </li>
+            <li>
+              <a onclick="openModalError()">Leaderboard</a>
+            </li>
+            <li>
+              <a onclick="openModalError()">CodeEditor</a>
+            </li>
+            <li>
+              <a href="/portfolio">Portfolio</a>
+            </li>
+          </ul>
+          <a onclick="openModalLogin()" class="text-white cursor-pointer"
+            >Log In</a
+          >
+          <button onclick="openModalSignup()" class="text-black bg-white rounded-full px-4 py-2"
+            >Sign Up</a
+          >
+        </div>
+      </nav>
+    {% endif %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gray-800 text-gray-400">
+      <div class="container mx-auto px-6 py-8 text-center">
+        <p class="mb-2">The fun way for middle schoolers to learn coding!</p>
+        <p class="text-sm">&copy; 2024 CodeWhiz. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <div
+  id="modalFullscreen"
+  class="hidden auth-modal flex z-50 fixed inset-0 bg-black bg-opacity-50 items-center justify-center"
+>
+  <div id="centerModalSignup" class="hidden bg-white p-8 rounded-lg max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex space-x-4">
+        <button
+          class="text-xl font-bold border-b-4 border-[#F12B18]"
+          id="signup"
+          onclick="switchSignup()"
+        >
+          Sign up
+        </button>
+        <button
+          class="text-xl font-bold border-b-4 border-white"
+          id="login"
+          onclick="switchLogin()"
+        >
+          Log in
+        </button>
+      </div>
+      <button
+        id="dismissBn"
+        class="rounded-lg hover:bg-red-200"
+        onclick="dismiss()"
+      >
+        <span class="[&>svg]:h-6 [&>svg]:w-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div class="text-center">
+      <form id="signupForm">
+        <input
+          type="text"
+          id="signupUsername"
+          placeholder="Username"
+          class="w-full mb-3 p-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:border-gray-500"
+        />
+        <input
+          type="text"
+          id="signupName"
+          placeholder="Name"
+          class="w-full mb-3 p-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:border-gray-500"
+        />
+        <input
+          type="text"
+          id="signupEmail"
+          placeholder="Email"
+          class="w-full mb-3 p-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:border-gray-500"
+        />
+        <input
+          type="password"
+          id="signupPass"
+          placeholder="Password"
+          class="w-full p-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:border-gray-500"
+        />
+      </form>
+      <div id="signupError" class="text-red-500 mt-2 hidden"></div>
+      <button
+        class="px-8 py-3 mt-8 bg-[#282C32] text-[#FFFFFF] rounded-full hover:bg-[#010101]"
+        onclick="signup()"
+      >
+        Sign up
+      </button>
+    </div>
+  </div>
+  <div id="centerModalLogin" class="bg-white p-8 rounded-lg max-w-md hidden">
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex space-x-4">
+        <button
+          class="text-xl font-bold border-b-4 border-white"
+          onclick="switchSignup()"
+        >
+          Sign up
+        </button>
+        <button
+          class="text-xl font-bold border-b-4 border-[#F12B18]"
+          onclick="switchLogin()"
+        >
+          Log in
+        </button>
+      </div>
+      <button
+        id="dismissBn"
+        class="rounded-lg hover:bg-red-200"
+        onclick="dismiss()"
+      >
+        <span class="[&>svg]:h-6 [&>svg]:w-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div class="text-center">
+      <form id="signupForm">
+        <input
+          type="text"
+          id="loginEmail"
+          placeholder="Username or email"
+          class="w-full mb-3 p-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:border-gray-500"
+        />
+        <input
+          type="password"
+          id="loginPass"
+          placeholder="Password"
+          class="w-full p-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:border-gray-500"
+        />
+      </form>
+      <div id="loginError" class="text-red-500 mt-2 hidden"></div>
+      <button
+        id="loginBtn"
+        onclick="login()"
+        class="px-8 py-3 mt-8 bg-[#282C32] text-[#FFFFFF] rounded-full hover:bg-[#010101]"
+      >
+        Log in
+      </button>
+    </div>
+  </div>
+  <div id="centerModalError" class="bg-white p-8 rounded-lg max-w-md hidden">
+    <div class="flex justify-between items-center mb-4">
+      <button
+        id="dismissBn"
+        class="rounded-lg hover:bg-red-200"
+        onclick="dismiss()"
+      >
+        <span class="[&>svg]:h-6 [&>svg]:w-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div class="text-center">
+      <p id="errorText" class="text-red-600 mb-4">Log in to enter!</p>
+      <button
+        onclick="openModalLogin()"
+        class="px-8 py-3 mt-8 bg-[#282C32] text-[#FFFFFF] rounded-full hover:bg-[#010101]"
+      >
+        Log in
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
+{% block end_script %}{% endblock %}
+  </body>
+</html>

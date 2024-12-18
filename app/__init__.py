@@ -5,7 +5,6 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask_session import Session
 
-
 fb_api_key = os.getenv("FBAPIKEY")
 db_url = os.getenv("DATABASEURL")
 
