@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %} WebCodeEditor - CodeWhiz {%
+endblock %} {% block head_script %}
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+  rel="stylesheet"
+/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
+{% endblock %} {% block content %}
+<div class="pt-14 height flex justify-center">
+  <div class="container">
+    <div class="p-2 bg-[#25292e]">
+      <button
+        class="bg-[#f12b18] hover:bg-red-800 text-white font-bold p-2 rounded"
+        id="runbtn"
+      >
+        <i class="fa-solid fa-play pr-2"></i>Run
+      </button>
+    </div>
+    <div class="h-full flex">
+      <div class="w-3/6 divide-y">
+        <div class="h-1/3 text-xl" id="htmlEditor"></div>
+        <div class="h-1/3 text-xl" id="cssEditor"></div>
+        <div class="h-1/3 text-xl" id="jsEditor"></div>
+      </div>
+      <iframe class="w-3/6 bg-white" id="output"></iframe>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block end_script %}
+<script src="/js/webcodeeditor.js"></script>
+{% endblock %}
