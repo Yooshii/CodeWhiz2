@@ -403,25 +403,17 @@ def generate_questions():
 def generate_new_questions(language, category, level, num_questions=5):
     prompt = get_or_create_prompt(language, category, level)
 
-    response = client.beta.prompt_caching.messages.create(
+    response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=2048,
-        system=[
-            {
-                "type": "text",
-                "text": "You are a state of the programming quiz question generator for middle school, high school and elementary school kids. Generate unique questions that are different from previously generated ones."
-            }
-        ],
         messages=[
             {
+                "role": "system",
+                "content": "You are a programming quiz question generator for students. Generate unique questions that are different from previously generated ones."
+            },
+            {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"{prompt}\n\nIMPORTANT: Generate completely unique questions that are different from any previous questions. Ensure variety in both question content and structure.",
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ]
+                "content": f"{prompt}\n\nIMPORTANT: Generate completely unique questions that are different from any previous questions. Ensure variety in both question content and structure."
             }
         ]
     )
@@ -521,7 +513,7 @@ def pycodeeditor():
 def py_question():
     question = request.get_json().get("question")
 
-    response = client.beta.prompt_caching.messages.create(
+    response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=2048,
         system=[
@@ -565,7 +557,7 @@ def webcodeeditor():
 def web_question():
     question = request.get_json().get("question")
 
-    response = client.beta.prompt_caching.messages.create(
+    response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=2048,
         system=[
