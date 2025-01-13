@@ -1,5 +1,5 @@
 from flask import Flask
-import pyrebase
+import firebase
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -22,7 +22,7 @@ def create_app():
     app = Flask(__name__, static_folder="static", static_url_path="")
 
     app.secret_key = "emovie"
-    fb = pyrebase.initialize_app(firebaseConfig)
+    fb = firebase.initialize_app(firebaseConfig)
     app.auth = fb.auth()
     app.db = fb.database()
 
