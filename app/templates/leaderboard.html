@@ -1,11 +1,11 @@
-{% extends "base.html" %} {% block title %} Leaderboard - CodeWhiz {% endblock
+{% extends "baseauth.html" %} {% block title %} Leaderboard - CodeWhiz {% endblock
 %} {% block head_script %}
 <link
   href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
   rel="stylesheet"
 />
 {% endblock %} {% block content %}
-<main class="pt-24 pb-16 min-h-screen">
+<div class="pt-24 pb-16 min-h-screen">
   <div id="leaderboardContent">
     <h2 class="text-4xl font-bold mb-8 text-center text-[#f12b18]">
       Leaderboard
@@ -39,7 +39,7 @@
       Back to Home
     </a>
   </div>
-</main>
+</div>
 {% endblock %} {% block end_script %}
 <script src="/js/leaderboard.js"></script>
 {% endblock %}

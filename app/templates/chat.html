@@ -1,0 +1,12 @@
+{% extends "baseauth.html" %} {% block title %} WebCodeEditor - CodeWhiz {% endblock
+%} {% block head_script %}
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+  crossorigin="anonymous"
+></script>
+{% endblock %} {% block content %}
+<div class="pt-24 pb-16 min-h-screen flex justify-center">
+</div>
+{% endblock %} {% block end_script %}
+<script src="/js/chat.js"></script>
+{% endblock %}

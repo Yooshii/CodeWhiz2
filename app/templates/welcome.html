@@ -1,9 +1,13 @@
-{% extends "base.html" %} {% block title %} Home - CodeWhiz {% endblock %} {%
+{% extends "baseauth.html" %} {% block title %} Home - CodeWhiz {% endblock %} {%
 block head_script %}
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %} {% block content %}
-<section class="hero-section">
-  <img src="/imgs/wallpaper.jpg" class="absolute w-full h-full" />
+<section class="hero-section min-h-screen">
+  <!-- Background Image with Fixed Positioning -->
+  <img class="absolute top-0 bg-cover" src="/imgs/wallpaper.jpg">
+  
+  <!-- Content Overlay -->
   <div class="absolute flex items-center justify-center z-10 inset-0">
     <div class="text-center text-white">
       <h1 class="text-4xl mb-4">Start Quizing</h1>
@@ -11,6 +15,21 @@ block head_script %}
         <button class="glitch-btn">Get Started</button>
       </a>
     </div>
+  </div>
+
+  <div class="absolute bottom-0 left-0 right-0 p-4 bg-gray-900 text-white text-center z-10 border-b border-gray-700">
+    <a href="#scores">
+      <p>Scores ↓</p>
+    </a>
+  </div>
+</section>
+
+<section class="flex flex-row z-20 bg-black py-16" id="scores">
+  <div class="w-3/6">
+    <canvas id="languageChart"></canvas>
+  </div>
+  <div class="w-3/6">
+    <canvas id="categoryChart"></canvas>
   </div>
 </section>
 {% endblock %} {% block end_script %}

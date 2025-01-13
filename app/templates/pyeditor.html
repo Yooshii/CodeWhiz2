@@ -1,31 +1,134 @@
-{% extends "base.html" %} {% block title %} Python - CodeWhiz {% endblock %} {%
-block head_script %}
-<script
-  src="https://kit.fontawesome.com/105633963c.js"
-  crossorigin="anonymous"
-></script>
+{% extends "baseeditor.html" %} {% block title %} Python - CodeWhiz {% endblock
+%} {% block head_script %}
+<script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/xterm@5.1.0/css/xterm.css" />
+<script src="https://unpkg.com/xterm@5.1.0/lib/xterm.js"></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"
+/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+/>
+{% endblock %} {% block sidebar %}
+<ul class="space-y-2 font-medium">
+  <li
+    class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 cursor-pointer"
+    onclick="openFile('python')"
+  >
+    <i class="fa-brands fa-python fa-lg text-blue-400 pr-3"></i>main.py
+  </li>
+</ul>
+<ul
+  class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700"
+>
+  <li>
+    <button
+      class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+      onclick="openFile('terminal')"
+    >
+      <i
+        class="fa-solid fa-terminal transition duration-75 text-gray-400 group-hover:text-white"
+      ></i>
+      <span class="ms-3 whitespace-nowrap">Terminal</span>
+    </button>
+  </li>
+  <li>
+    <button
+      class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+      onclick="openFile('agent')"
+    >
+      <i
+        class="fa-solid fa-comments fa-lg transition duration-75 text-gray-400 group-hover:text-white"
+      ></i>
+      <span class="ms-3 whitespace-nowrap">AI Agent</span>
+    </button>
+  </li>
+</ul>
 {% endblock %} {% block content %}
-<div class="pt-24 pb-16 min-h-screen flex justify-center">
-  <div class="container">
-    <div class="p-2 bg-[#25292e]">
-      <button
-        class="bg-[#f12b18] hover:bg-red-800 text-white font-bold p-2 rounded"
-        id="runbtn"
-        onclick="runCode()"
-      >
-        <i class="fa-solid fa-play pr-2"></i>Run
-      </button>
+<div class="pt-14 height flex justify-center">
+  <div class="container h-full flex">
+    <div class="flex flex-col h-screen w-3/6">
+      <div class="bg-[#1e1e1e] p-2 flex items-center border-b border-gray-700">
+        <!-- File Tabs -->
+        <div class="flex space-x-2">
+          <div
+            class="bg-[#25292e] text-white px-4 py-2 rounded-t-lg cursor-pointer"
+            onclick="openFile('python')"
+          >
+            <i class="fa-brands fa-python fa-lg text-blue-400 pr-2"></i>main.py
+          </div>
+          <!-- <div
+              class="bg-[#1e1e1e] text-gray-400 px-4 py-2 rounded-t-lg cursor-pointer hover:bg-[#25292e] hover:text-white"
+            >
+              <i class="fa-brands fa-html5 fa-lg text-orange-400 pr-2"></i
+              >index.html
+            </div> -->
+        </div>
+      </div>
+      <div class="flex-1 text-xl" id="editor"></div>
     </div>
-    <div class="h-4/5 flex">
-      <div class="w-3/6 text-xl" id="editor"></div>
-      <div
-        class="w-3/6 h-full max-h-full bg-black text-white overflow-scroll"
-        id="output"
-      ></div>
+    <div class="flex flex-col w-3/6 h-screen" id="right">
+      <!-- <script type="py" terminal worker></script> -->
+      <!-- <div class="bg-black h-full text-white" id="output"></div> -->
+      <div class="bg-[#1e1e1e] p-2 flex items-center border-b border-gray-700">
+        <!-- File Tabs -->
+        <div class="flex space-x-2">
+          <!-- Active File Tab -->
+          <div
+            class="bg-[#25292e] text-white px-4 py-2 rounded-t-lg cursor-pointer"
+            onclick="openFile('terminal')"
+            id="terminalbtn"
+          >
+            <i class="fa-solid fa-terminal text-white pr-2"></i>Terminal
+          </div>
+          <!-- Inactive File Tab -->
+          <div
+            class="bg-[#1e1e1e] text-gray-400 px-4 py-2 rounded-t-lg cursor-pointer hover:bg-[#25292e] hover:text-white"
+            onclick="openFile('agent')"
+            id="agentbtn"
+          >
+            <i class="fa-solid fa-comments fa-lg text-red-500 pr-2"></i>Agent
+          </div>
+        </div>
+      </div>
+      <div class="w-full flex-1 relative">
+        <div
+          class="w-full h-screen p-4 bg-[#1e1e1e] rounded-lg absolute"
+          id="agent"
+        >
+          <h2 class="text-white text-xl font-bold mb-4">Ask Claude</h2>
+          <textarea
+            id="claudeQuestion"
+            class="w-full p-2 bg-[#25292e] text-white rounded-lg mb-4"
+            placeholder="Type your question here..."
+            rows="4"
+          ></textarea>
+          <button
+            id="askClaudeBtn"
+            class="bg-[#4CAF50] hover:bg-[#45a049] text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200"
+            onclick="askAI()"
+          >
+            Ask Claude
+          </button>
+          <div
+            id="claudeResponse"
+            class="mt-4 p-3 bg-[#25292e] text-[#e6e6e6] rounded-lg overflow-y-auto max-h-[300px] scrollbar-thin scrollbar-thumb-[#4CAF50] scrollbar-track-[#1e1e1e]"
+          ></div>
+        </div>
+        <div class="h-full bg-black text-white absolute" id="terminal"></div>
+      </div>
     </div>
   </div>
 </div>
 {% endblock %} {% block end_script %}
+<script type="module" src="/js/pycodeeditorwithterminal.js"></script>
+<script src="/js/pyAskAI.js"></script>
 <script src="/js/pycodeeditor.js"></script>
 {% endblock %}

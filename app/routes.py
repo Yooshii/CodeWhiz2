@@ -43,6 +43,32 @@ def welcome():
     else:
         return redirect(url_for("main.index"))
     
+@main.route("/scorechart")
+def scorechart():
+    if session.get("is_logged_in"):
+        user_id = session["local_id"]
+        language_scores = {
+            "python_score": app.db.child("users").child(user_id).child("python_score").child("total").get().val(),
+            "java_score": app.db.child("users").child(user_id).child("java_score").child("total").get().val(),
+            "c_score": app.db.child("users").child(user_id).child("c_score").child("total").get().val(),
+            "cpp_score": app.db.child("users").child(user_id).child("cpp_score").child("total").get().val(),
+            "csharp_score": app.db.child("users").child(user_id).child("csharp_score").child("total").get().val(),
+            "js_score": app.db.child("users").child(user_id).child("js_score").child("total").get().val()
+        }
+
+        category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("python_score").child("total").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("java_score").child("total").get().val(),
+            "function_score": app.db.child("users").child(user_id).child("c_score").child("total").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("cpp_score").child("total").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("csharp_score").child("total").get().val(),
+            "debbugging_score": app.db.child("users").child(user_id).child("js_score").child("total").get().val()
+        }
+
+        return jsonify({"language_scores": language_scores, "category_scores": category_scores})
+    else:
+        return redirect(url_for("main.index"))
+
 @main.route("/login", methods = ["POST", "GET"])
 def login():
     if request.method == "POST":
@@ -99,7 +125,61 @@ def signup():
                 "username" : username, 
                 "email" : email,
                 "seen_questions" : {},
-                "score" : 0
+                "python_score" : {
+                    "loops" : 0,
+                    "conditionals" : 0,
+                    "functions" : 0,
+                    "variables" : 0,
+                    "arrays" : 0,
+                    "debbuging" : 0,
+                    "total": 0
+                },
+                "java_score" : {
+                    "loops" : 0,
+                    "conditionals" : 0,
+                    "functions" : 0,
+                    "variables" : 0,
+                    "arrays" : 0,
+                    "debbuging" : 0,
+                    "total": 0
+                },
+                "c_score" : {
+                    "loops" : 0,
+                    "conditionals" : 0,
+                    "functions" : 0,
+                    "variables" : 0,
+                    "arrays" : 0,
+                    "debbuging" : 0,
+                    "total": 0
+                },
+                "cpp_score" : {
+                    "loops" : 0,
+                    "conditionals" : 0,
+                    "functions" : 0,
+                    "variables" : 0,
+                    "arrays" : 0,
+                    "debbuging" : 0,
+                    "total": 0
+                },
+                "csharp_score" : {
+                    "loops" : 0,
+                    "conditionals" : 0,
+                    "functions" : 0,
+                    "variables" : 0,
+                    "arrays" : 0,
+                    "debbuging" : 0,
+                    "total": 0
+                },
+                "js_score" : {
+                    "loops" : 0,
+                    "conditionals" : 0,
+                    "functions" : 0,
+                    "variables" : 0,
+                    "arrays" : 0,
+                    "debbuging" : 0,
+                    "total": 0
+                },
+                "total_score" : 0
             }
             app.db.child("users").child(user["localId"]).set(data)
 
@@ -137,55 +217,77 @@ def logout():
 @main.route("/quiz")
 def quiz():
     if session["is_logged_in"]:
-        return render_template("quiz.html")
+        return render_template("quiz.html", email=session["username"])
     else:
         return redirect(url_for("main.index"))
 
-def update_user_score(user_id, score):
-    current_score = app.db.child("users").child(user_id).child("score").get().val() or 0
-    new_score = current_score + score
-    app.db.child("users").child(user_id).update({"score": new_score})
+def update_user_score(user_id, language, category, score):
+    user_data = app.db.child("users").child(user_id).child(language).get().val()
+    print("user_data: ", user_data)
+
+    if user_data:
+        current_language_score = user_data["total"]
+        new_language_score = current_language_score + score
+        app.db.child("users").child(user_id).child(language).update({"total": new_language_score})
+
+        current_category_score = user_data[category]
+        new_category_score = current_category_score + score
+        app.db.child("users").child(user_id).child(language).update({category : new_category_score})
+
+        current_total_score = app.db.child("users").child(user_id).child("total_score").get().val()
+        new_total_score = current_total_score + score
+        app.db.child("users").child(user_id).update({"total_score": new_total_score})
 
 @main.route("/update_score", methods=["POST"])
 def update_score():
     if session.get("is_logged_in"):
         user_id = session["local_id"]
-        print(user_id)
+        language = request.json.get("language")
+        category = request.json.get("category")
         score = request.json.get("score")
-        print(score)
-        update_user_score(user_id, score)
+
+        print(user_id, language, category, score)
+
+        update_user_score(user_id, language, category, score)
         return jsonify({"success": True}), 200
     return jsonify({"error": "User not logged in"}), 401
 
 @main.route("/leaderboard")
 def leaderboard():
-    try:
-        # Fetch all users without ordering
-        users = app.db.child("users").get()
-        leaderboard_data = []
-        if users.each():
-            for user in users.each():
-                user_data = user.val()
-                if isinstance(user_data, dict) and 'score' in user_data:
-                    leaderboard_data.append({
-                        "username": user_data.get("username", "Unknown"),
-                        "score": user_data.get("score", 0)
-                    })
-        
-        # Sort the data on the Python side
-        leaderboard_data.sort(key=lambda x: x["score"], reverse=True)
-        
-        # Take only the top 10
-        leaderboard_data = leaderboard_data[:10]
-        
-        return render_template("leaderboard.html", leaderboard_data=leaderboard_data)
-    except Exception as e:
-        print(f"Error fetching leaderboard: {e}")
-        return render_template("error.html", error="Failed to fetch leaderboard" + str(e))
-    
+    if session["is_logged_in"]:
+        try:
+            # Fetch all users without ordering
+            users = app.db.child("users").get()
+            leaderboard_data = []
+            if users.each():
+                for user in users.each():
+                    user_data = user.val()
+                    if isinstance(user_data, dict) and 'score' in user_data:
+                        leaderboard_data.append({
+                            "username": user_data.get("username", "Unknown"),
+                            "score": user_data.get("total_score", 0)
+                        })
+            
+            # Sort the data on the Python side
+            leaderboard_data.sort(key=lambda x: x["score"], reverse=True)
+            
+            # Take only the top 10
+            leaderboard_data = leaderboard_data[:10]
+            
+            return render_template("leaderboard.html", leaderboard_data=leaderboard_data, email=session["username"])
+        except Exception as e:
+            print(f"Error fetching leaderboard: {e}")
+            return render_template("error.html", error="Failed to fetch leaderboard" + str(e))
+    else:
+        return redirect(url_for("main.index"))
+
 @main.route("/portfolio")
 def portfolio():
     return render_template("portfolio.html")
+
+@main.route("/test")
+def test():
+    return render_template("test.html")
 
 def get_or_create_prompt(language, category, level):
     prompt_key = f"{language}_{category}_{level}"
@@ -307,7 +409,7 @@ def generate_new_questions(language, category, level, num_questions=5):
         system=[
             {
                 "type": "text",
-                "text": "You are a state of the art quiz question generator for middle school, high school and elementary school kids. Generate unique questions that are different from previously generated ones."
+                "text": "You are a state of the programming quiz question generator for middle school, high school and elementary school kids. Generate unique questions that are different from previously generated ones."
             }
         ],
         messages=[
@@ -355,7 +457,7 @@ def generate_new_questions(language, category, level, num_questions=5):
         return []
 
 def manage_cache():
-    languages = ['Python', 'JavaScript', 'C++']
+    languages = ['Python', 'Java', 'JavaScript', 'C++']
     categories = ['Loops', 'Conditionals', 'Functions', 'Variables', 'Arrays', "Debugging"]
     levels = range(1, 6)
 
@@ -410,25 +512,88 @@ def manage_cache():
 
 @main.route("/pycodeeditor")
 def pycodeeditor():
-    return render_template("pyeditor.html")
+    if session["is_logged_in"]:
+        return render_template("pyeditor.html", email=session["username"])
+    else:
+        return redirect(url_for("main.index"))
+
+@main.route("/py_question", methods=["POST"])
+def py_question():
+    question = request.get_json().get("question")
+
+    response = client.beta.prompt_caching.messages.create(
+        model="claude-3-5-sonnet-20240620",
+        max_tokens=2048,
+        system=[
+            {
+                "type": "text",
+                "text": "You are an AI agent for python programming questions for middle school, high school and elementary school kids. Generate python code that the user wants. Also, always put the programming language before ``` pairs."
+            }
+        ],
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": question
+                    }
+                ]
+            }
+        ]
+    )
+
+    try:
+        response_json = json.loads(response.model_dump_json())
+
+        print(response_json["content"][0])
+
+        return jsonify({"answer" : response_json["content"][0]["text"]})
+        
+    except Exception as e:
+        print(f"Error generating questions: {str(e)}")
+        return []
 
 @main.route("/webcodeeditor")
 def webcodeeditor():
-    return render_template("webeditor.html")
+    if session["is_logged_in"]:
+        return render_template("webeditor.html", email=session["username"])
+    else:
+        return redirect(url_for("main.index"))
+    
+@main.route("/web_question", methods=["POST"])
+def web_question():
+    question = request.get_json().get("question")
 
-@main.route('/run_py', methods=['POST'])
-def run_py():
-    data = request.json.get("code", "")
-    output = StringIO()
+    response = client.beta.prompt_caching.messages.create(
+        model="claude-3-5-sonnet-20240620",
+        max_tokens=2048,
+        system=[
+            {
+                "type": "text",
+                "text": "You are an AI agent for web development programming questions for middle school, high school and elementary school kids. Generate web (HTML, CSS, JavaScript) code that the user wants. Also, always put the programming language before ``` pairs."
+            }
+        ],
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": question
+                    }
+                ]
+            }
+        ]
+    )
 
     try:
-        with contextlib.redirect_stdout(output):
-            exec(data)
+        response_json = json.loads(response.model_dump_json())
+
+        print(response_json["content"][0])
+
+        return jsonify({"answer" : response_json["content"][0]["text"]})
+        
     except Exception as e:
-        output = str(e)
-
-        return jsonify({"error": traceback.format_exc()}), 400
-
-    print(output.getvalue())
-
-    return jsonify({"output": output.getvalue()})
+        print(f"Error generating questions: {str(e)}")
+        return []

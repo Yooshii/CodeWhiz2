@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}CodeWhiz{% endblock %} {% block
-content %}
+{% extends "baseunauth.html" %}
+{% block title %}CodeWhiz{% endblock %}
+{% block content %}
 
 <section class="hero-section">
   <img src="/imgs/wallpaper.jpg" class="absolute w-full h-full" />
@@ -8,7 +9,7 @@ content %}
       <h1 class="text-4xl mb-4">Become a CodeWhiz in no time!</h1>
       <h2 class="text-xl mb-4">Quiz against other students</h2>
       <button onclick="openModalSignup()" class="glitch-btn">
-        Get Started
+        Learn More
       </button>
     </div>
   </div>
