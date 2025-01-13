@@ -408,12 +408,8 @@ def generate_new_questions(language, category, level, num_questions=5):
         max_tokens=2048,
         messages=[
             {
-                "role": "system",
-                "content": "You are a programming quiz question generator for students. Generate unique questions that are different from previously generated ones."
-            },
-            {
                 "role": "user",
-                "content": f"{prompt}\n\nIMPORTANT: Generate completely unique questions that are different from any previous questions. Ensure variety in both question content and structure."
+                "content": f"You are a programming quiz question generator for students. Generate unique questions that are different from previously generated ones. {prompt}\n\nIMPORTANT: Generate completely unique questions that are different from any previous questions. Ensure variety in both question content and structure."
             }
         ]
     )
