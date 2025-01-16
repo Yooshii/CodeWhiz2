@@ -1,137 +1,3 @@
-// // Initialize Monaco Editor
-// require.config({
-//   paths: { vs: "https://unpkg.com/monaco-editor@0.33.0/min/vs" },
-// });
-
-// require(["vs/editor/editor.main"], function () {
-//   const editor = monaco.editor.create(document.getElementById("editor"), {
-//     value: `# Your Python code here\nimport numpy as np\n\narray = np.array([1, 2, 3])\nprint(array)`,
-//     language: "python",
-//     theme: "vs-dark",
-//   });
-
-//   const runBtn = document.getElementById("runbtn");
-//   const output = document.querySelector('script[type="py"][terminal][worker]');
-
-//   // Function to extract package names from import statements
-//   function extractPackages(code) {
-//     const importRegex = /(?:import|from)\s+([a-zA-Z0-9_]+)/g;
-//     const packages = new Set();
-//     let match;
-//     while ((match = importRegex.exec(code)) !== null) {
-//       packages.add(match[1]);
-//     }
-//     return Array.from(packages);
-//   }
-
-//   // Initialize Pyodide
-//   async function initializePyodide() {
-//     if (!window.loadPyodide) {
-//       throw new Error(
-//         "Pyodide script is not loaded. Please ensure pyodide.js is included before this script."
-//       );
-//     }
-
-//     let pyodide = await loadPyodide({
-//       indexURL: "https://cdn.jsdelivr.net/pyodide/v0.21.3/full/",
-//     });
-
-//     // Load the 'sys' module
-//     await pyodide.loadPackage(["micropip"]);
-
-//     // Override sys.stdout and sys.stderr to capture output
-//     await pyodide.runPythonAsync(`
-//         import sys
-//         import io
-//         sys.stdout = io.StringIO()
-//         sys.stderr = io.StringIO()
-//       `);
-
-//     console.log("Pyodide initialized successfully!");
-//     return pyodide;
-//   }
-
-//   let pyodideInstance = null;
-
-//   // Initialize Pyodide as soon as the page loads
-//   initializePyodide()
-//     .then((pyodide) => {
-//       pyodideInstance = pyodide;
-//     })
-//     .catch((error) => {
-//       console.error("Failed to initialize Pyodide:", error);
-//     });
-
-//   // Run button event listener
-//   runBtn.addEventListener("click", async () => {
-//     if (!pyodideInstance) {
-//       output.innerHTML = `print("Pyodide is still loading...")`;
-//       return;
-//     }
-
-//     const code = editor.getValue();
-//     output.innerHTML = "__terminal__.clear()";
-
-//     try {
-//       const packages = extractPackages(code);
-//       console.log("Detected packages:", packages);
-
-//       // Load required packages
-//       for (const pkg of packages) {
-//         try {
-//           await pyodideInstance.loadPackage(pkg);
-//           console.log(`Successfully loaded package: ${pkg}`);
-//         } catch (error) {
-//           console.warn(`Failed to load package: ${pkg}`, error);
-//         }
-//       }
-
-//       // Run the user's code
-//       await pyodideInstance.runPythonAsync(code);
-
-//       // Capture stdout and stderr
-//       const stdout = pyodideInstance.runPythonAsync(`
-//           sys.stdout.getvalue()
-//         `);
-//       const stderr = pyodideInstance.runPythonAsync(`
-//           sys.stderr.getvalue()
-//         `);
-
-//       // Display the output
-//       output.innerHTML = await `print(${stdout})`;
-//       if (await stderr) {
-//         output.textContent += `\nError: ${await stderr}`;
-//       }
-//     } catch (error) {
-//       output.textContent = `Error: ${error}`;
-//     }
-//   });
-// });
-
-// // Function to ask AI (Claude)
-// async function askAI() {
-//   const question = document.getElementById("claudeQuestion").value;
-//   const responseDiv = document.getElementById("claudeResponse");
-
-//   responseDiv.textContent = "Generating code... (May take a few minutes)";
-
-//   try {
-//     const response = await fetch("/py_question", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ question }),
-//     });
-//     const data = await response.json();
-//     console.log(data);
-//     responseDiv.innerHTML = data.answer;
-//   } catch (error) {
-//     console.error("Error fetching response:", error);
-//     responseDiv.textContent = "Error fetching response. Please try again.";
-//   }
-// }
-
 import { Terminal } from "https://cdn.jsdelivr.net/npm/xterm@5.1.0/+esm";
 
 require.config({
@@ -206,8 +72,6 @@ require(["vs/editor/editor.main"], function () {
 
     const code = editor.getValue();
 
-    term.clear();
-
     try {
       const packages = extractPackages(code);
       console.log("Detected packages:", packages);
@@ -226,17 +90,21 @@ require(["vs/editor/editor.main"], function () {
       await pyodideInstance.runPythonAsync(code);
 
       // Capture stdout and stderr
-      const stdout = await pyodideInstance.runPythonAsync(
+      let stdout = await pyodideInstance.runPythonAsync(
         "sys.stdout.getvalue()"
       );
-      const stderr = await pyodideInstance.runPythonAsync(
+      let stderr = await pyodideInstance.runPythonAsync(
         "sys.stderr.getvalue()"
       );
 
+      term.reset();
+
       // Display the output in the terminal
-      term.write(stdout);
+      term.write("\r" + stdout.replace(/\n/g, "\r\n"));
+      stdout = "";
       if (stderr) {
-        term.write(`\r\nError: ${stderr}`);
+        term.write(`\r\nError: ${stderr.replace(/\n/g, '\r\n')}`);
+        stderr = "";
       }
     } catch (error) {
       term.write(`\r\nError: ${error}\r\n`);

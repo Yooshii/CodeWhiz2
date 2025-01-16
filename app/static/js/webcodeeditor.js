@@ -120,7 +120,7 @@ function openFile(type) {
     agent.classList.remove("hidden");
     agentbtn.classList.remove(...btnclassoff);
     agentbtn.classList.add(...btnclasson);
-    
+
     output.classList.add("hidden");
     outputbtn.classList.add(...btnclassoff);
     outputbtn.classList.remove(...btnclasson);

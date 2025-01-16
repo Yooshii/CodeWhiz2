@@ -36,7 +36,7 @@ sidebtn.addEventListener("mouseout", () => {
 sidebtn.addEventListener("click", () => {
   sidebar.classList.toggle("-translate-x-full");
   sidebtnline.classList.toggle("bg-white");
-  
+
   if (sidebar.classList.contains("-translate-x-full")) {
     mainContainer.classList.remove("sidebar-on");
     mainContainer.classList.add("w-full");

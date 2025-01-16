@@ -1,12 +1,12 @@
-{% extends "baseauth.html" %} {% block title %} Home - CodeWhiz {% endblock %} {%
-block head_script %}
+{% extends "baseauth.html" %} {% block title %} Home - CodeWhiz {% endblock %}
+{% block head_script %}
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %} {% block content %}
 <section class="hero-section min-h-screen">
   <!-- Background Image with Fixed Positioning -->
-  <img class="absolute top-0 bg-cover" src="/imgs/wallpaper.jpg">
-  
+  <img class="absolute top-0 bg-cover" src="/imgs/wallpaper.jpg" />
+
   <!-- Content Overlay -->
   <div class="absolute flex items-center justify-center z-10 inset-0">
     <div class="text-center text-white">
@@ -17,18 +17,100 @@ block head_script %}
     </div>
   </div>
 
-  <div class="absolute bottom-0 left-0 right-0 p-4 bg-gray-900 text-white text-center z-10 border-b border-gray-700">
+  <div
+    class="absolute bottom-0 left-0 right-0 p-4 bg-gray-900 text-white text-center z-10 border-b border-gray-700"
+  >
     <a href="#scores">
       <p>Scores ↓</p>
     </a>
   </div>
 </section>
 
-<section class="flex flex-row z-20 bg-black py-16" id="scores">
+<section class="flex flex-row z-20 bg-gray-900 py-16" id="scores">
   <div class="w-3/6">
     <canvas id="languageChart"></canvas>
   </div>
   <div class="w-3/6">
+    <button
+      id="dropdownDefaultButton"
+      data-dropdown-toggle="dropdown"
+      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      type="button"
+    >
+      <div id="langDropdown">
+        Python
+      </div>
+      <svg
+        class="w-2.5 h-2.5 ms-3"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 10 6"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="m1 1 4 4 4-4"
+        />
+      </svg>
+    </button>
+
+    <!-- Dropdown menu -->
+    <div
+      id="dropdown"
+      class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+    >
+      <ul
+        class="py-2 text-sm text-gray-700 dark:text-gray-200"
+        aria-labelledby="dropdownDefaultButton"
+      >
+        <li>
+          <button
+            class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="selectedLanguage('python')"
+            >Python</button
+          >
+        </li>
+        <li>
+          <button
+            class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="selectedLanguage('java')"
+            >Java</button
+          >
+        </li>
+        <li>
+          <button
+            class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="selectedLanguage('c')"
+            >C</button
+          >
+        </li>
+        <li>
+          <button
+            class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="selectedLanguage('cpp')"
+            >C++</button
+          >
+        </li>
+        <li>
+          <button
+            class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="selectedLanguage('csharp')"
+            >C#</button
+          >
+        </li>
+        <li>
+          <button
+            class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="selectedLanguage('js')"
+            >JavaScript</button
+          >
+        </li>
+      </ul>
+    </div>
+
     <canvas id="categoryChart"></canvas>
   </div>
 </section>

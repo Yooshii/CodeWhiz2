@@ -75,8 +75,8 @@ function QuizQuestion({
       window.editor = monaco.editor.create(
         document.getElementById(`editor-${questionNumber}`),
         {
-          value: "// Write your code here",
-          language: "javascript",
+          value: "",
+          language: quizData[currentLanguage].editorName,
           theme: "vs-dark",
           automaticLayout: true,
         }
@@ -494,9 +494,9 @@ function LevelSelection({ category, levels, onStart }) {
       {
         className: `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
           level === selectedLevel
-            ? "bg-gray-700 text-gray-300"
+            ? "bg-[#f12b18] text-white"
             : "bg-gray-700 text-gray-300"
-        } hover:text-white transition-colors`,
+        } hover:text-white transition-colors focus:bg-[#f12b18]`,
         onClick: () => {
           selectedLevel = level;
           updateLevelButtons();
@@ -510,7 +510,7 @@ function LevelSelection({ category, levels, onStart }) {
     levelButtons.forEach((button, index) => {
       button.className = `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
         index + 1 === selectedLevel
-          ? "bg-gray-700 text-gray-300"
+          ? "bg-[#f12b18] text-white"
           : "bg-gray-700 text-gray-300"
       } hover:text-white transition-colors focus:bg-[#f12b18]`;
     });
@@ -714,19 +714,19 @@ function showResult() {
       },
       createElement(
         "h2",
-        { className: "text-3xl font-bold mb-6 text-white" },
+        { className: "text-3xl font-bold mb-6 text-red-600" },
         "Quiz Complete!"
       ),
       createElement(
         "p",
-        { className: "text-2xl mb-6" },
+        { className: "text-2xl mb-6 text-white" },
         `Your score: ${score}/${questions[currentLanguage][currentCategory][currentLevel].length}`
       ),
       createElement(
         "button",
         {
           className:
-            "bg-secondary text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-secondary/80 transition-colors mr-4",
+            "bg-secondary text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-red-600/80 transition-colors mr-4",
           onClick: () => startQuiz(currentLevel),
         },
         "Play Again"
@@ -735,7 +735,7 @@ function showResult() {
         "button",
         {
           className:
-            "bg-white text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-white/80 transition-colors",
+            "bg-gray-700 text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-gtay-700/80 transition-colors",
           onClick: showLanguageSelection,
         },
         "Back to Languages"

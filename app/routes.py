@@ -56,16 +56,69 @@ def scorechart():
             "js_score": app.db.child("users").child(user_id).child("js_score").child("total").get().val()
         }
 
-        category_scores = {
-            "loops_score": app.db.child("users").child(user_id).child("python_score").child("total").get().val(),
-            "conditionals_score": app.db.child("users").child(user_id).child("java_score").child("total").get().val(),
-            "function_score": app.db.child("users").child(user_id).child("c_score").child("total").get().val(),
-            "variables_score": app.db.child("users").child(user_id).child("cpp_score").child("total").get().val(),
-            "arrays_score": app.db.child("users").child(user_id).child("csharp_score").child("total").get().val(),
-            "debbugging_score": app.db.child("users").child(user_id).child("js_score").child("total").get().val()
+        python_category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("python_score").child("loops").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("python_score").child("conditionals").get().val(),
+            "functions_score": app.db.child("users").child(user_id).child("python_score").child("functions").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("python_score").child("variables").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("python_score").child("arrays").get().val(),
+            "debbuging_score": app.db.child("users").child(user_id).child("python_score").child("debbuging").get().val()
         }
 
-        return jsonify({"language_scores": language_scores, "category_scores": category_scores})
+        java_category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("java_score").child("loops").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("java_score").child("conditionals").get().val(),
+            "functions_score": app.db.child("users").child(user_id).child("java_score").child("functions").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("java_score").child("variables").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("java_score").child("arrays").get().val(),
+            "debbuging_score": app.db.child("users").child(user_id).child("java_score").child("debbuging").get().val()
+        }
+
+        c_category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("c_score").child("loops").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("c_score").child("conditionals").get().val(),
+            "functions_score": app.db.child("users").child(user_id).child("c_score").child("functions").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("c_score").child("variables").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("c_score").child("arrays").get().val(),
+            "debbuging_score": app.db.child("users").child(user_id).child("c_score").child("debbuging").get().val()
+        }
+
+        cpp_category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("cpp_score").child("loops").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("cpp_score").child("conditionals").get().val(),
+            "functions_score": app.db.child("users").child(user_id).child("cpp_score").child("functions").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("cpp_score").child("variables").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("cpp_score").child("arrays").get().val(),
+            "debbuging_score": app.db.child("users").child(user_id).child("cpp_score").child("debbuging").get().val()
+        }
+
+        csharp_category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("csharp_score").child("loops").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("csharp_score").child("conditionals").get().val(),
+            "functions_score": app.db.child("users").child(user_id).child("csharp_score").child("functions").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("csharp_score").child("variables").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("csharp_score").child("arrays").get().val(),
+            "debbuging_score": app.db.child("users").child(user_id).child("csharp_score").child("debbuging").get().val()
+        }
+
+        js_category_scores = {
+            "loops_score": app.db.child("users").child(user_id).child("js_score").child("loops").get().val(),
+            "conditionals_score": app.db.child("users").child(user_id).child("js_score").child("conditionals").get().val(),
+            "functions_score": app.db.child("users").child(user_id).child("js_score").child("functions").get().val(),
+            "variables_score": app.db.child("users").child(user_id).child("js_score").child("variables").get().val(),
+            "arrays_score": app.db.child("users").child(user_id).child("js_score").child("arrays").get().val(),
+            "debbuging_score": app.db.child("users").child(user_id).child("js_score").child("debbuging").get().val()
+        }
+
+        return jsonify({
+            "language_scores": language_scores,
+            "python_category_scores": python_category_scores,
+            "java_category_scores": java_category_scores,
+            "c_category_scores": c_category_scores,
+            "cpp_category_scores": cpp_category_scores,
+            "csharp_category_scores": csharp_category_scores,
+            "js_category_scores": js_category_scores
+        })
     else:
         return redirect(url_for("main.index"))
 
@@ -284,10 +337,6 @@ def leaderboard():
 @main.route("/portfolio")
 def portfolio():
     return render_template("portfolio.html")
-
-@main.route("/test")
-def test():
-    return render_template("test.html")
 
 def get_or_create_prompt(language, category, level):
     prompt_key = f"{language}_{category}_{level}"
@@ -512,21 +561,10 @@ def py_question():
     response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=2048,
-        system=[
-            {
-                "type": "text",
-                "text": "You are an AI agent for python programming questions for middle school, high school and elementary school kids. Generate python code that the user wants. Also, always put the programming language before ``` pairs."
-            }
-        ],
         messages=[
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": question
-                    }
-                ]
+                "content": f"You are an AI agent for python programming questions for students. Generate python code that the user wants. {question}\n\nIMPORTANT: Always put the programming language before ``` pairs."
             }
         ]
     )
@@ -556,21 +594,10 @@ def web_question():
     response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=2048,
-        system=[
-            {
-                "type": "text",
-                "text": "You are an AI agent for web development programming questions for middle school, high school and elementary school kids. Generate web (HTML, CSS, JavaScript) code that the user wants. Also, always put the programming language before ``` pairs."
-            }
-        ],
         messages=[
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": question
-                    }
-                ]
+                "content": f"You are an AI agent for web development programming questions for students. Generate web (HTML, CSS, JavaScript) code that the user wants. {question}\n\nIMPORTANT: Always put the programming language before ``` pairs. Always put the language to this: HTML -> html, CSS -> css, JS -> javascript."
             }
         ]
     )

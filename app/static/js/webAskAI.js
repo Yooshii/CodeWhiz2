@@ -25,23 +25,27 @@ async function askAI() {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
 
-    let formattedResponse = escapedResponse
-    let matchIndex = 0
+    let formattedResponse = escapedResponse;
+    let matchIndex = 0;
 
-    formattedResponse = formattedResponse
-      .replace(/```([\s\S]*?)```/g, (match, codeContent) => {
+    formattedResponse = formattedResponse.replace(
+      /```([\s\S]*?)```/g,
+      (match, codeContent) => {
         codeContent = codeContent.trim();
         const firstWord = firstWords[matchIndex];
-        matchIndex++
-        return `<pre class="code-block"><code class="language-${firstWord}">${codeContent}</code></pre>`;
-      })
+        matchIndex++;
+        return `<pre class="code-block"><code class="language-${firstWord.toLowerCase()}">${codeContent}</code></pre>`;
+      }
+    );
 
-    formattedResponse = formattedResponse
-      .replace(/`([\s\S]*?)`/g, (match, codeContent) => {
+    formattedResponse = formattedResponse.replace(
+      /`([\s\S]*?)`/g,
+      (match, codeContent) => {
         codeContent = codeContent.trim();
 
         return `<b class="text-white">\`${codeContent}\`</b>`;
-      });
+      }
+    );
 
     const blocks = formattedResponse.split(
       /(<pre class="code-block">.*?<\/pre>)/gs

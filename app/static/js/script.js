@@ -113,171 +113,217 @@ function showLeaderboard() {
   window.location.href = "/leaderboard";
 }
 
-// const ctx1 = document.getElementById("languageChart");
-// const ctx2 = document.getElementById("categoryChart");
-// let pythonScore;
-// let javaScore;
-// let cScore;
-// let cppScore;
-// let csharpScore;
-// let jsScore;
-
-// fetch("/scorechart")
-//   .then((response) => response.json())
-//   .then((data) => {
-//     pythonScore = data.language_scores.python_score
-//     javaScore = data.language_scores.java_score
-//     cScore = data.language_scores.c_score
-//     cppScore = data.language_scores.cpp_score
-//     csharpScore = data.language_scores.csharp_score
-//     jsScore = data.language_scores.js_score
-
-//     console.log(pythonScore, javaScore, cScore)
-
-//     new Chart(ctx1, {
-//       type: "radar",
-//       data: {
-//         labels: ["Python", "Java", "C", "C++", "C#", "JavaScript"],
-//         datasets: [
-//           {
-//             label: "Language Scores",
-//             data: [pythonScore, javaScore, cScore, cppScore, csharpScore, jsScore],
-//             borderWidth: 1,
-//           },
-//         ],
-//       },
-//       options: {
-//         elements: {
-//           line: {
-//             borderWidth: 3,
-//           },
-//         },
-//       },
-//     });
-    
-//     new Chart(ctx2, {
-//       type: "radar",
-//       data: {
-//         labels: [
-//           "Loops",
-//           "Conditionals",
-//           "Function",
-//           "Variables",
-//           "Arrays",
-//           "Debbugging",
-//         ],
-//         datasets: [
-//           {
-//             label: "Category Scores",
-//             data: [12, 19, 3, 5, 2, 3],
-//             borderWidth: 1,
-//           },
-//         ],
-//       },
-//       options: {
-//         elements: {
-//           line: {
-//             borderWidth: 3,
-//           },
-//         },
-//       },
-//     });
-//   })
-//   .catch((error) => console.error("Error fetching scores:", error));
-
 const darkModeConfig = {
   plugins: {
-      legend: {
-          labels: { color: '#ffffff' }
-      }
+    legend: {
+      labels: { color: "#ffffff" },
+    },
   },
   scales: {
-      r: {
-          angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-          grid: { color: 'rgba(255, 255, 255, 0.1)' },
-          pointLabels: { color: '#ffffff' },
-          ticks: {
-              color: '#ffffff',
-              backdropColor: 'transparent'
-          }
-      }
+    r: {
+      beginAtZero: true,
+      angleLines: { color: "rgba(255, 255, 255, 0.3)" },
+      grid: { color: "rgba(255, 255, 255, 0.3)" },
+      pointLabels: { color: "#ffffff" },
+      ticks: {
+        color: "#ffffff",
+        backdropColor: "transparent",
+      },
+    },
   },
   elements: {
-      line: {
-          borderWidth: 3,
-          borderColor: 'rgba(54, 162, 235, 0.8)',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)'
-      },
-      point: {
-          backgroundColor: 'rgba(54, 162, 235, 1)'
-      }
-  }
+    line: {
+      borderWidth: 3,
+      borderColor: "rgba(54, 162, 235, 0.8)",
+      backgroundColor: "rgba(54, 162, 235, 0.2)",
+    },
+    point: {
+      backgroundColor: "rgba(54, 162, 235, 1)",
+    },
+  },
 };
 
 let languageChart, categoryChart;
 
 function createEmptyCharts() {
-    // Language Chart
-    languageChart = new Chart(document.getElementById('languageChart'), {
-        type: 'radar',
-        data: {
-            labels: ['Python', 'Java', 'C', 'C++', 'C#', 'JavaScript'],
-            datasets: [{
-                label: 'Language Scores',
-                data: [0, 0, 0, 0, 0, 0], // Empty data initially
-                borderWidth: 1
-            }]
+  // Language Chart
+  languageChart = new Chart(document.getElementById("languageChart"), {
+    type: "radar",
+    data: {
+      labels: ["Python", "Java", "C", "C++", "C#", "JavaScript"],
+      datasets: [
+        {
+          label: "Language Scores",
+          data: [0, 0, 0, 0, 0, 0], // Empty data initially
+          borderWidth: 1,
         },
-        options: darkModeConfig
-    });
+      ],
+    },
+    options: darkModeConfig,
+  });
 
-    // Category Chart
-    categoryChart = new Chart(document.getElementById('categoryChart'), {
-        type: 'radar',
-        data: {
-            labels: ['Loops', 'Conditionals', 'Function', 'Variables', 'Arrays', 'Debugging'],
-            datasets: [{
-                label: 'Category Scores',
-                data: [0, 0, 0, 0, 0, 0], // Empty data initially
-                borderWidth: 1
-            }]
+  // Category Chart
+  categoryChart = new Chart(document.getElementById("categoryChart"), {
+    type: "radar",
+    data: {
+      labels: [
+        "Loops",
+        "Conditionals",
+        "Function",
+        "Variables",
+        "Arrays",
+        "Debugging",
+      ],
+      datasets: [
+        {
+          label: "Category Scores",
+          data: [0, 0, 0, 0, 0, 0], // Empty data initially
+          borderWidth: 1,
         },
-        options: darkModeConfig
-    });
+      ],
+    },
+    options: darkModeConfig,
+  });
+}
+
+function selectedLanguage(language) {
+  const langDropdown = document.getElementById("langDropdown");
+
+  if (language === "python") {
+    langDropdown.textContent = "Python";
+  } else if (language === "java") {
+    langDropdown.textContent = "Java";
+  } else if (language === "c") {
+    langDropdown.textContent = "C";
+  } else if (language === "cpp") {
+    langDropdown.textContent = "C++";
+  } else if (language === "csharp") {
+    langDropdown.textContent = "C#";
+  } else if (language === "js") {
+    langDropdown.textContent = "JavaScript";
+  }
+
+  updateCategoryChart(language);
 }
 
 // Update charts with real data
 async function updateChartsData() {
-    try {
-        const response = await fetch('/scorechart');
-        if (!response.ok) throw new Error('Failed to fetch data');
-        
-        const data = await response.json();
-        const { language_scores } = data;
+  try {
+    const response = await fetch("/scorechart");
+    if (!response.ok) throw new Error("Failed to fetch data");
 
-        // Update language chart data
-        languageChart.data.datasets[0].data = [
-            language_scores.python_score,
-            language_scores.java_score,
-            language_scores.c_score,
-            language_scores.cpp_score,
-            language_scores.csharp_score,
-            language_scores.js_score
-        ];
-        languageChart.update('none'); // Update without animation for speed
+    const data = await response.json();
+    const { language_scores, python_category_scores } = data;
 
-        // Update category chart data
-        categoryChart.data.datasets[0].data = [12, 19, 3, 5, 2, 3];
-        categoryChart.update('none'); // Update without animation for speed
+    // Update language chart data
+    languageChart.data.datasets[0].data = [
+      language_scores.python_score,
+      language_scores.java_score,
+      language_scores.c_score,
+      language_scores.cpp_score,
+      language_scores.csharp_score,
+      language_scores.js_score,
+    ];
+    languageChart.update("none"); // Update without animation for speed
 
-    } catch (error) {
-        console.error('Error fetching scores:', error);
-    }
+    categoryChart.data.datasets[0].data = [
+      python_category_scores.loops_score,
+      python_category_scores.conditionals_score,
+      python_category_scores.functions_score,
+      python_category_scores.variables_score,
+      python_category_scores.arrays_score,
+      python_category_scores.debbuging_score,
+    ];
+    categoryChart.update("none");
+  } catch (error) {
+    console.error("Error fetching scores:", error);
+  }
 }
 
-// Initialize empty charts immediately when DOM loads
-document.addEventListener('DOMContentLoaded', () => {
-    createEmptyCharts();
-    // Fetch real data after empty charts are rendered
-    updateChartsData();
+document.addEventListener("DOMContentLoaded", () => {
+  createEmptyCharts();
+  // Fetch real data after empty charts are rendered
+  updateChartsData();
 });
+
+async function updateCategoryChart(lang) {
+  try {
+    const response = await fetch("/scorechart");
+
+    if (!response.ok) throw new Error("Failed to fetch category scores");
+
+    const data = await response.json();
+    if (lang === "python") {
+      const { python_category_scores } = data;
+
+      categoryChart.data.datasets[0].data = [
+        python_category_scores.loops_score,
+        python_category_scores.conditionals_score,
+        python_category_scores.functions_score,
+        python_category_scores.variables_score,
+        python_category_scores.arrays_score,
+        python_category_scores.debbuging_score,
+      ];
+    } else if (lang === "java") {
+      const { java_category_scores } = data;
+
+      categoryChart.data.datasets[0].data = [
+        java_category_scores.loops_score,
+        java_category_scores.conditionals_score,
+        java_category_scores.functions_score,
+        java_category_scores.variables_score,
+        java_category_scores.arrays_score,
+        java_category_scores.debbuging_score,
+      ]
+    } else if (lang === "c") {
+      const { c_category_scores } = data;
+
+      categoryChart.data.datasets[0].data = [
+        c_category_scores.loops_score,
+        c_category_scores.conditionals_score,
+        c_category_scores.functions_score,
+        c_category_scores.variables_score,
+        c_category_scores.arrays_score,
+        c_category_scores.debbuging_score,
+      ]
+    } else if (lang === "cpp") {
+      const { cpp_category_scores } = data;
+
+      categoryChart.data.datasets[0].data = [
+        cpp_category_scores.loops_score,
+        cpp_category_scores.conditionals_score,
+        cpp_category_scores.functions_score,
+        cpp_category_scores.variables_score,
+        cpp_category_scores.arrays_score,
+        cpp_category_scores.debbuging_score,
+      ]
+    } else if (lang === "csharp") {
+      const { csharp_category_scores } = data;
+
+      categoryChart.data.datasets[0].data = [
+        csharp_category_scores.loops_score,
+        csharp_category_scores.conditionals_score,
+        csharp_category_scores.functions_score,
+        csharp_category_scores.variables_score,
+        csharp_category_scores.arrays_score,
+        csharp_category_scores.debbuging_score,
+      ]
+    } else if (lang === "js") {
+      const { js_category_scores } = data;
+
+      categoryChart.data.datasets[0].data = [
+        js_category_scores.loops_score,
+        js_category_scores.conditionals_score,
+        js_category_scores.functions_score,
+        js_category_scores.variables_score,
+        js_category_scores.arrays_score,
+        js_category_scores.debbuging_score,
+      ]
+    }
+    
+    categoryChart.update("none");
+
+  } catch(error) {
+    console.error("Error fetching category scores:", error);
+  }
+}
