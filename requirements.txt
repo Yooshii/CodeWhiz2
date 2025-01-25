@@ -4,3 +4,4 @@ firebase-rest-api == 1.11.0
 Werkzeug <= 2.3.7
 requests == 2.32.3
 anthropic
+Flask-SocketIO <= 5.3.6
