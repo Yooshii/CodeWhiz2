@@ -315,7 +315,7 @@ def leaderboard():
             if users.each():
                 for user in users.each():
                     user_data = user.val()
-                    if isinstance(user_data, dict) and 'score' in user_data:
+                    if isinstance(user_data, dict):
                         leaderboard_data.append({
                             "username": user_data.get("username", "Unknown"),
                             "score": user_data.get("total_score", 0)
