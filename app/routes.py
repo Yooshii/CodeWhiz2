@@ -23,7 +23,6 @@ client = anthropic.Anthropic(
 def index():
     last_cache_check = session.get('last_cache_check')
     if not last_cache_check or datetime.now() - datetime.fromisoformat(last_cache_check) >= timedelta(hours=1):
-        # Run manage_cache in the background
         thread = threading.Thread(target=manage_cache)
         thread.start()
         session['last_cache_check'] = datetime.now().isoformat()
@@ -35,7 +34,6 @@ def welcome():
     if session.get("is_logged_in"):
         last_cache_check = session.get('last_cache_check')
         if not last_cache_check or datetime.now() - datetime.fromisoformat(last_cache_check) >= timedelta(hours=1):
-            # Run manage_cache in the background
             thread = threading.Thread(target=manage_cache)
             thread.start()
             session['last_cache_check'] = datetime.now().isoformat()
@@ -310,7 +308,6 @@ def update_score():
 def leaderboard():
     if session["is_logged_in"]:
         try:
-            # Fetch all users without ordering
             users = app.db.child("users").get()
             leaderboard_data = []
             if users.each():
@@ -321,11 +318,9 @@ def leaderboard():
                             "username": user_data.get("username", "Unknown"),
                             "score": user_data.get("total_score", 0)
                         })
-            
-            # Sort the data on the Python side
+
             leaderboard_data.sort(key=lambda x: x["score"], reverse=True)
-            
-            # Take only the top 10
+
             leaderboard_data = leaderboard_data[:10]
             
             return render_template("leaderboard.html", leaderboard_data=leaderboard_data, email=session["username"])
@@ -376,18 +371,14 @@ def generate_questions():
 
     cache_key = f"{language}_{category}_{level}"
 
-    # Fetch user's seen questions
     user_data = app.db.child("users").child(user_id).get().val()
     seen_questions = user_data.get("seen_questions", {}).get(cache_key, [])
 
-    # Fetch and clean cached questions
     cached_questions = app.db.child("cached_questions").child(cache_key).get().val() or []
-    
-    # Remove duplicates from cached questions based on question content
+
     unique_cached = []
     seen_content = set()
     for q in cached_questions:
-        # Create a unique identifier based on question content
         content_hash = hashlib.md5(
             json.dumps({
                 'question': q['question'],
@@ -400,20 +391,16 @@ def generate_questions():
             seen_content.add(content_hash)
             unique_cached.append(q)
     
-    # Update cache with deduplicated questions
     app.db.child("cached_questions").child(cache_key).set(unique_cached)
     cached_questions = unique_cached
 
-    # Get available questions (not seen by user)
     available_questions = [q for q in cached_questions if q['id'] not in seen_questions]
 
-    # Generate new questions if needed
     attempts = 0
-    max_attempts = 3  # Limit generation attempts to prevent infinite loops
+    max_attempts = 3
     while len(available_questions) < num_questions and attempts < max_attempts:
         new_questions = generate_new_questions(language, category, level, max(5, num_questions - len(available_questions)))
         
-        # Deduplicate new questions against existing cache
         for q in new_questions:
             content_hash = hashlib.md5(
                 json.dumps({
@@ -431,10 +418,8 @@ def generate_questions():
         
         attempts += 1
 
-    # Update cache with new questions
     app.db.child("cached_questions").child(cache_key).set(cached_questions)
 
-    # Select random questions from available pool
     selected_questions = []
     if available_questions:
         selected_questions = random.sample(
@@ -442,7 +427,6 @@ def generate_questions():
             min(num_questions, len(available_questions))
         )
 
-    # Update user's seen questions
     for question in selected_questions:
         if question['id'] not in seen_questions:
             seen_questions.append(question['id'])
@@ -476,7 +460,6 @@ def generate_new_questions(language, category, level, num_questions=5):
                 questions_json = questions_text[start:end]
                 questions = json.loads(questions_json)
                 
-                # Generate IDs based on content to help identify duplicates
                 for q in questions:
                     serializable_q = {
                         'question': q['question'],
@@ -504,16 +487,13 @@ def manage_cache():
             for level in levels:
                 cache_key = f"{language}_{category}_{level}"
                 
-                # Refresh prompts older than 7 days
                 prompt_data = app.db.child("cached_prompts").child(cache_key).get().val()
                 if not prompt_data or datetime.now() - datetime.fromisoformat(prompt_data['timestamp']) >= timedelta(days=7):
                     get_or_create_prompt(language, category, level)
                     print(f"Refreshed prompt for {cache_key}")
 
-                # Clean and maintain question cache
                 cached_questions = app.db.child("cached_questions").child(cache_key).get().val() or []
                 
-                # Remove duplicates
                 unique_questions = []
                 seen_content = set()
                 for q in cached_questions:
@@ -529,7 +509,6 @@ def manage_cache():
                         seen_content.add(content_hash)
                         unique_questions.append(q)
                 
-                # Generate new questions if needed
                 if len(unique_questions) < 20:
                     new_questions = generate_new_questions(language, category, level, 20 - len(unique_questions))
                     for q in new_questions:
@@ -625,7 +604,7 @@ def create_post():
                 "content": content,
                 "author_id": session["local_id"],
                 "author_username": session["username"],
-                "timestamp": {".sv": "timestamp"},  # Server timestamp
+                "timestamp": {".sv": "timestamp"},
                 "likes": 0,
                 "liked_by": {}
             }

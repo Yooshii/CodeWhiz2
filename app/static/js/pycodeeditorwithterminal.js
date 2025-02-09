@@ -25,7 +25,6 @@ require(["vs/editor/editor.main"], function () {
     return Array.from(packages);
   }
 
-  // Initialize Pyodide
   async function initializePyodide() {
     if (!window.loadPyodide) {
       throw new Error(
@@ -37,10 +36,8 @@ require(["vs/editor/editor.main"], function () {
       indexURL: "https://cdn.jsdelivr.net/pyodide/v0.21.3/full/",
     });
 
-    // Load the 'sys' module
     await pyodide.loadPackage(["micropip"]);
 
-    // Override sys.stdout and sys.stderr to capture output
     await pyodide.runPythonAsync(`
         import sys
         import io
@@ -54,7 +51,6 @@ require(["vs/editor/editor.main"], function () {
 
   let pyodideInstance = null;
 
-  // Initialize Pyodide as soon as the page loads
   initializePyodide()
     .then((pyodide) => {
       pyodideInstance = pyodide;
@@ -63,7 +59,6 @@ require(["vs/editor/editor.main"], function () {
       console.error("Failed to initialize Pyodide:", error);
     });
 
-  // Run button event listener
   runBtn.addEventListener("click", async () => {
     if (!pyodideInstance) {
       term.write("Pyodide is still loading...\r\n");
@@ -76,7 +71,6 @@ require(["vs/editor/editor.main"], function () {
       const packages = extractPackages(code);
       console.log("Detected packages:", packages);
 
-      // Load required packages
       for (const pkg of packages) {
         try {
           await pyodideInstance.loadPackage(pkg);
@@ -86,10 +80,8 @@ require(["vs/editor/editor.main"], function () {
         }
       }
 
-      // Run the command in Pyodide
       await pyodideInstance.runPythonAsync(code);
 
-      // Capture stdout and stderr
       let stdout = await pyodideInstance.runPythonAsync(
         "sys.stdout.getvalue()"
       );
@@ -99,7 +91,6 @@ require(["vs/editor/editor.main"], function () {
 
       term.reset();
 
-      // Display the output in the terminal
       term.write("\r" + stdout.replace(/\n/g, "\r\n"));
       stdout = "";
       if (stderr) {

@@ -22,7 +22,7 @@ function fetchPosts() {
     .then((response) => response.json())
     .then((posts) => {
       const postsContainer = document.getElementById("postsContainer");
-      postsContainer.innerHTML = ""; // Clear previous posts
+      postsContainer.innerHTML = "";
       console.log(posts);
       posts["posts"].forEach((post) => {
         const postElement = document.createElement("div");

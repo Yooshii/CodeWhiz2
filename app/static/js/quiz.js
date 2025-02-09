@@ -66,24 +66,6 @@ function QuizQuestion({
     className: "w-full h-5/6 mb-6",
   });
 
-  // Initialize Monaco Editor
-  setTimeout(() => {
-    require.config({
-      paths: { vs: "https://unpkg.com/monaco-editor@0.34.0/min/vs" },
-    });
-    require(["vs/editor/editor.main"], function () {
-      window.editor = monaco.editor.create(
-        document.getElementById(`editor-${questionNumber}`),
-        {
-          value: "",
-          language: quizData[currentLanguage].editorName,
-          theme: "vs-dark",
-          automaticLayout: true,
-        }
-      );
-    });
-  }, 0);
-
   const getOptionClass = (option) => {
     const baseClass = "w-full py-3 px-4 text-left rounded-lg transition-colors";
 
@@ -92,14 +74,14 @@ function QuizQuestion({
     }
 
     if (option === correctAnswer) {
-      return baseClass + " bg-green-600"; // Correct answer
+      return baseClass + " bg-green-600";
     }
 
     if (option === selectedAnswer && option !== correctAnswer) {
-      return baseClass + " bg-red-600"; // Wrong selected answer
+      return baseClass + " bg-red-600";
     }
 
-    return baseClass + " bg-gray-700"; // Other options
+    return baseClass + " bg-gray-700";
   };
 
   const optionButtons = options.map((option) =>
@@ -108,7 +90,7 @@ function QuizQuestion({
       {
         className: getOptionClass(option),
         onClick: () => onAnswer(option),
-        disabled: correctAnswer !== null, // Disable buttons during feedback
+        disabled: correctAnswer !== null,
       },
       option
     )
@@ -143,12 +125,10 @@ function QuizQuestion({
         { className: "space-y-3 text-white" },
         ...optionButtons
       )
-    ),
-    createElement("div", { className: "flex-1" }, editorContainer)
+    )
   );
 }
 
-// Main App Logic
 const mainContent = document.getElementById("mainContent");
 let currentLanguage = "";
 let currentCategory = "";
@@ -486,7 +466,7 @@ function showLevelSelection() {
 
 function LevelSelection({ category, levels, onStart }) {
   console.log("Rendering LevelSelection component");
-  let selectedLevel = 1; // Default selected level
+  let selectedLevel = 1;
 
   const levelButtons = levels.map((level) =>
     createElement(
@@ -673,7 +653,7 @@ function checkAnswer(answer) {
     QuizQuestion({
       question: currentQuestion.question,
       options: currentQuestion.options,
-      onAnswer: () => {}, // Disable answer handling during feedback
+      onAnswer: () => {},
       timeLeft: timeLeft,
       questionNumber: questionIndex + 1,
       totalQuestions: levelQuestions.length,
@@ -793,5 +773,4 @@ function showLeaderboard() {
   window.location.href = "/leaderboard";
 }
 
-// Initialize the app
 showLanguageSelection();

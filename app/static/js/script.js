@@ -146,7 +146,6 @@ const darkModeConfig = {
 let languageChart, categoryChart;
 
 function createEmptyCharts() {
-  // Language Chart
   languageChart = new Chart(document.getElementById("languageChart"), {
     type: "radar",
     data: {
@@ -154,7 +153,7 @@ function createEmptyCharts() {
       datasets: [
         {
           label: "Language Scores",
-          data: [0, 0, 0, 0, 0, 0], // Empty data initially
+          data: [0, 0, 0, 0, 0, 0],
           borderWidth: 1,
         },
       ],
@@ -162,7 +161,6 @@ function createEmptyCharts() {
     options: darkModeConfig,
   });
 
-  // Category Chart
   categoryChart = new Chart(document.getElementById("categoryChart"), {
     type: "radar",
     data: {
@@ -177,7 +175,7 @@ function createEmptyCharts() {
       datasets: [
         {
           label: "Category Scores",
-          data: [0, 0, 0, 0, 0, 0], // Empty data initially
+          data: [0, 0, 0, 0, 0, 0],
           borderWidth: 1,
         },
       ],
@@ -206,7 +204,6 @@ function selectedLanguage(language) {
   updateCategoryChart(language);
 }
 
-// Update charts with real data
 async function updateChartsData() {
   try {
     const response = await fetch("/scorechart");
@@ -215,7 +212,6 @@ async function updateChartsData() {
     const data = await response.json();
     const { language_scores, python_category_scores } = data;
 
-    // Update language chart data
     languageChart.data.datasets[0].data = [
       language_scores.python_score,
       language_scores.java_score,
@@ -224,7 +220,7 @@ async function updateChartsData() {
       language_scores.csharp_score,
       language_scores.js_score,
     ];
-    languageChart.update("none"); // Update without animation for speed
+    languageChart.update("none");
 
     categoryChart.data.datasets[0].data = [
       python_category_scores.loops_score,
@@ -242,7 +238,6 @@ async function updateChartsData() {
 
 document.addEventListener("DOMContentLoaded", () => {
   createEmptyCharts();
-  // Fetch real data after empty charts are rendered
   updateChartsData();
 });
 

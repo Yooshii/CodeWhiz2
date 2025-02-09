@@ -52,7 +52,6 @@ require(["vs/editor/editor.main"], function () {
   })
 });
 
-// Function to open a file
 function openFile(type) {
   const htmlEditor = document.getElementById("htmlEditor");
   const htmlbtn = document.getElementById("htmlbtn");

@@ -56,7 +56,6 @@
   <div class="container h-full flex">
     <div class="flex flex-col h-screen w-3/6">
       <div class="bg-[#1e1e1e] p-2 flex items-center border-b border-gray-700">
-        <!-- File Tabs -->
         <div class="flex space-x-2">
           <div
             class="bg-[#25292e] text-white px-4 py-2 rounded-t-lg cursor-pointer"
@@ -64,23 +63,13 @@
           >
             <i class="fa-brands fa-python fa-lg text-blue-400 pr-2"></i>main.py
           </div>
-          <!-- <div
-                class="bg-[#1e1e1e] text-gray-400 px-4 py-2 rounded-t-lg cursor-pointer hover:bg-[#25292e] hover:text-white"
-              >
-                <i class="fa-brands fa-html5 fa-lg text-orange-400 pr-2"></i
-                >index.html
-              </div> -->
         </div>
       </div>
       <div class="flex-1 text-xl" id="editor"></div>
     </div>
     <div class="flex flex-col w-3/6 h-screen" id="right">
-      <!-- <script type="py" terminal worker></script> -->
-      <!-- <div class="bg-black h-full text-white" id="output"></div> -->
       <div class="bg-[#1e1e1e] p-2 flex items-center border-b border-gray-700">
-        <!-- File Tabs -->
         <div class="flex space-x-2">
-          <!-- Active File Tab -->
           <div
             class="bg-[#25292e] text-white px-4 py-2 rounded-t-lg cursor-pointer"
             onclick="openFile('terminal')"
@@ -88,7 +77,6 @@
           >
             <i class="fa-solid fa-terminal text-white pr-2"></i>Terminal
           </div>
-          <!-- Inactive File Tab -->
           <div
             class="bg-[#1e1e1e] text-gray-400 px-4 py-2 rounded-t-lg cursor-pointer hover:bg-[#25292e] hover:text-white"
             onclick="openFile('agent')"
