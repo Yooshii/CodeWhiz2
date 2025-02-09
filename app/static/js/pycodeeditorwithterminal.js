@@ -103,7 +103,7 @@ require(["vs/editor/editor.main"], function () {
       term.write("\r" + stdout.replace(/\n/g, "\r\n"));
       stdout = "";
       if (stderr) {
-        term.write(`\r\nError: ${stderr.replace(/\n/g, '\r\n')}`);
+        term.write(`\r\nError: ${stderr.replace(/\n/g, "\r\n")}`);
         stderr = "";
       }
     } catch (error) {

@@ -152,7 +152,7 @@ def login():
         session["username"] = app.db.child("users").child(session["local_id"]).child("username").get().val()
 
         return jsonify({"success": True, "redirect": url_for("main.welcome")})
-        
+
 @main.route("/signup", methods = ["POST", "GET"])
 def signup():
     if request.method == "POST":
@@ -178,6 +178,7 @@ def signup():
                 "username" : username, 
                 "email" : email,
                 "seen_questions" : {},
+                "projects" : {},
                 "python_score" : {
                     "loops" : 0,
                     "conditionals" : 0,
@@ -565,6 +566,7 @@ def py_question():
             {
                 "role": "user",
                 "content": f"You are an AI agent for python programming questions for students. Generate python code that the user wants. {question}\n\nIMPORTANT: Always put the programming language before ``` pairs."
+
             }
         ]
     )
@@ -572,7 +574,7 @@ def py_question():
     try:
         response_json = json.loads(response.model_dump_json())
 
-        print(response_json["content"][0])
+        print(response_json)
 
         return jsonify({"answer" : response_json["content"][0]["text"]})
         
@@ -612,3 +614,57 @@ def web_question():
     except Exception as e:
         print(f"Error generating questions: {str(e)}")
         return []
+    
+@main.route("/create_post", methods=["POST"])
+def create_post():
+    try:
+        data = request.json
+        content = data.get("content")
+
+        post_data = {
+                "content": content,
+                "author_id": session["local_id"],
+                "author_username": session["username"],
+                "timestamp": {".sv": "timestamp"},  # Server timestamp
+                "likes": 0,
+                "liked_by": {}
+            }
+        
+        post_ref = app.db.child("posts").push(post_data)
+
+        app.db.child("users").child(session["local_id"]).child("posts").child(post_ref["name"]).set(True)
+            
+        return jsonify({
+            "success": True,
+            "post_id": post_ref["name"]
+        }), 200
+    except Exception as e:
+        print(f"Error creating post: {str(e)}")
+        return jsonify({"success": False, "error": "Error creating post"})
+
+@main.route("/get_posts")
+def get_posts():
+    try:
+        posts = app.db.child("posts").order_by_child("timestamp").limit_to_last(50).get()
+
+        posts_list = []
+        for post in posts.each():
+            post_data = post.val()
+            post_data["id"] = post.key()
+            posts_list.append(post_data)
+
+        posts_list.reverse()
+        return jsonify({
+                "success": True,
+                "posts": posts_list
+            })
+    except Exception as e:
+        print(f"Error getting posts: {str(e)}")
+        return jsonify({"success": False, "error": "Error getting posts"})
+
+@main.route("/feed")
+def feed():
+    if session["is_logged_in"]:
+        return render_template("feed.html", email=session["username"])
+    else:
+        return redirect(url_for("main.index"))

@@ -3,6 +3,7 @@ require.config({
     vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs",
   },
 });
+
 require(["vs/editor/editor.main"], function () {
   const htmlEditor = monaco.editor.create(
     document.getElementById("htmlEditor"),
@@ -36,7 +37,8 @@ require(["vs/editor/editor.main"], function () {
     theme: "vs-dark",
   });
 
-  function runCode() {
+  runBtn = document.getElementById("runbtn")
+  runBtn.addEventListener("click", () => {
     let htmlCode = htmlEditor.getValue();
     let cssCode = cssEditor.getValue();
     let jsCode = jsEditor.getValue();
@@ -47,8 +49,7 @@ require(["vs/editor/editor.main"], function () {
       htmlCode + "<style>" + cssCode + "</style>";
 
     output.contentWindow.eval(jsCode);
-  }
-  document.getElementById("runbtn").onclick = runCode;
+  })
 });
 
 // Function to open a file
@@ -120,7 +121,7 @@ function openFile(type) {
     agent.classList.remove("hidden");
     agentbtn.classList.remove(...btnclassoff);
     agentbtn.classList.add(...btnclasson);
-
+    
     output.classList.add("hidden");
     outputbtn.classList.add(...btnclassoff);
     outputbtn.classList.remove(...btnclasson);

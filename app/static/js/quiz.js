@@ -763,8 +763,8 @@ function updateScore(score) {
     "Python" : "python_score",
     "Java" : "java_score",
     "C" : "c_score",
-    "C++" : "cpp_score",
-    "C#" : "csharp_score",
+    "Cpp" : "cpp_score",
+    "Csharp" : "csharp_score",
     "JavaScript" : "js_score",
   }
   const dbLanguage = languageMap[currentLanguage]
